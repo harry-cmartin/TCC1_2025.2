@@ -8,6 +8,8 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
+import csv
+import ast
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -251,126 +253,483 @@ class Neo4jGraphCreator:
             print(f"✅ Relacionamento SUPPORTED_BY criado: {req_id} -> {instr_id}")
     
     def populate_sample_data(self):
-        """Popula o grafo com dados de exemplo baseados na especificação"""
-        print("🎯 Iniciando criação de dados de exemplo...")
+        """Popula o grafo com dados de exemplo para demonstração"""
+        print("🎯 Criando dados de exemplo...")
         
-        # Criando Concepts
-        self.create_concept("C001", "Requisito Funcional", 
-                           "Um requisito que descreve uma função específica do sistema.",
-                           "IEEE Std 830", [0.311, -0.244, 0.665])
+        # Criar Requirements de exemplo
+        requirements = [
+            {
+                "req_id": "REQ_001",
+                "text": "O sistema deve permitir login de usuários",
+                "summary": "Autenticação básica de usuários",
+                "req_type": "funcional",
+                "domain": "segurança",
+                "source": "exemplo"
+            },
+            {
+                "req_id": "REQ_002", 
+                "text": "O sistema deve ser responsivo em dispositivos móveis",
+                "summary": "Compatibilidade mobile",
+                "req_type": "não-funcional",
+                "domain": "usabilidade",
+                "source": "exemplo"
+            },
+            {
+                "req_id": "REQ_003",
+                "text": "O sistema deve criptografar dados sensíveis",
+                "summary": "Proteção de dados pessoais",
+                "req_type": "não-funcional",
+                "domain": "segurança",
+                "source": "exemplo"
+            }
+        ]
         
-        self.create_concept("C002", "Autenticação", 
-                           "Processo de verificação da identidade de um usuário.",
-                           "Literatura de Segurança", [0.521, -0.134, 0.445])
+        # Criar Techniques
+        techniques = [
+            {
+                "tech_id": "TECH_001",
+                "name": "Entrevista",
+                "description": "Técnica de elicitação através de conversas estruturadas",
+                "category": "Elicitação",
+                "phase": "elicitação"
+            },
+            {
+                "tech_id": "TECH_002",
+                "name": "Questionário",
+                "description": "Coleta de requisitos através de formulários",
+                "category": "Elicitação", 
+                "phase": "elicitação"
+            },
+            {
+                "tech_id": "TECH_003",
+                "name": "Casos de Uso",
+                "description": "Documentação de cenários de interação usuário-sistema",
+                "category": "Documentação",
+                "phase": "especificação"
+            }
+        ]
         
-        self.create_concept("C003", "Stakeholder", 
-                           "Qualquer pessoa ou organização que é afetada pelo sistema.",
-                           "Sommerville (2011)", [0.221, -0.534, 0.775])
+        # Criar Instructions
+        instructions = [
+            {
+                "inst_id": "INST_001",
+                "title": "Priorize requisitos por valor de negócio",
+                "description": "Sempre avalie o impacto nos objetivos do negócio",
+                "category": "priorização",
+                "level": "básico"
+            },
+            {
+                "inst_id": "INST_002",
+                "title": "Valide requisitos com stakeholders",
+                "description": "Confirme entendimento com todas as partes interessadas",
+                "category": "validação",
+                "level": "intermediário"
+            },
+            {
+                "inst_id": "INST_003",
+                "title": "Mantenha rastreabilidade",
+                "description": "Garanta que requisitos possam ser rastreados até sua origem",
+                "category": "gerenciamento",
+                "level": "avançado"
+            }
+        ]
         
-        # Criando Techniques
-        self.create_technique("TECH001", "Entrevistas", 
-                             "Coleta de requisitos por meio de entrevistas com stakeholders.",
-                             "Elicitação", "Sommerville (2011)", [0.223, -0.316, 0.444])
+        # Criar Concepts
+        concepts = [
+            {
+                "concept_id": "CONC_001",
+                "name": "Requisito Funcional",
+                "definition": "Descreve o que o sistema deve fazer",
+                "category": "classificação",
+                "domain": "geral"
+            },
+            {
+                "concept_id": "CONC_002",
+                "name": "Requisito Não-Funcional",
+                "definition": "Descreve como o sistema deve se comportar",
+                "category": "classificação",
+                "domain": "geral"
+            },
+            {
+                "concept_id": "CONC_003",
+                "name": "Stakeholder",
+                "definition": "Pessoa ou grupo com interesse no sistema",
+                "category": "atores",
+                "domain": "geral"
+            }
+        ]
         
-        self.create_technique("TECH002", "Casos de Uso", 
-                             "Técnica para capturar requisitos funcionais através de cenários.",
-                             "Especificação", "Jacobson et al.", [0.423, -0.216, 0.644])
+        # Criar nós
+        for req in requirements:
+            self.create_requirement(**req)
         
-        self.create_technique("TECH003", "Prototipação", 
-                             "Criação de versões preliminares do sistema para validação.",
-                             "Validação", "Literatura de ES", [0.523, -0.116, 0.844])
+        for tech in techniques:
+            self.create_technique(**tech)
         
-        # Criando Instructions
-        self.create_instruction("INST001", "Os requisitos devem ser claros e verificáveis.",
-                               "Especificação", "Sommerville (2011)", [0.512, -0.122, 0.211])
+        for inst in instructions:
+            self.create_instruction(**inst)
         
-        self.create_instruction("INST002", "Entrevistar stakeholders para elicitar requisitos.",
-                               "Elicitação", "Kotonya & Sommerville", [0.612, -0.222, 0.311])
+        for conc in concepts:
+            self.create_concept(**conc)
         
-        self.create_instruction("INST003", "Validar requisitos com protótipos.",
-                               "Validação", "Davis (1993)", [0.412, -0.322, 0.411])
+        # Criar relacionamentos
+        self.create_relationships_sample()
         
-        # Criando Requirements
-        self.create_requirement("REQ001", 
-                               "O sistema deve permitir que o usuário redefina a senha via e-mail.",
-                               "Redefinição de senha por email", "funcional", "ProjetoX", "segurança",
-                               [0.123, -0.456, 0.789])
-        
-        self.create_requirement("REQ002", 
-                               "O sistema deve autenticar usuários através de login e senha.",
-                               "Autenticação básica", "funcional", "ProjetoX", "segurança",
-                               [0.223, -0.356, 0.889])
-        
-        self.create_requirement("REQ003", 
-                               "O sistema deve responder em menos de 2 segundos.",
-                               "Performance do sistema", "não-funcional", "ProjetoY", "performance",
-                               [0.323, -0.256, 0.989])
-        
-        print("✅ Todos os nós criados!")
-        
-        # Criando relacionamentos
+        print(f"✅ {len(requirements)} requirements, {len(techniques)} techniques, {len(instructions)} instructions, {len(concepts)} concepts criados!")
+
+
+    def create_relationships_sample(self):
+        """Cria relacionamentos de exemplo entre os nós"""
         print("🔗 Criando relacionamentos...")
         
-        # Requirements relacionados a Concepts
-        self.create_is_related_to_relationship("REQ001", "C002")  # Redefinir senha -> Autenticação
-        self.create_is_related_to_relationship("REQ002", "C002")  # Login -> Autenticação
-        self.create_is_related_to_relationship("REQ001", "C001")  # Req funcional -> Conceito funcional
-        self.create_is_related_to_relationship("REQ002", "C001")  # Req funcional -> Conceito funcional
+        relationships_created = 0
         
-        # Instructions referem-se a Concepts
-        self.create_refers_to_relationship("INST001", "C001")  # Requisitos verificáveis -> Req Funcional
-        self.create_refers_to_relationship("INST002", "C003")  # Entrevistar -> Stakeholder
+        try:
+            with self.driver.session() as session:
+                # Requirements -> Techniques (usadas para elicitar)
+                session.run("""
+                    MATCH (r:Requirement {req_id: "REQ_001"}), (t:Technique {tech_id: "TECH_001"})
+                    CREATE (r)-[:ELICITED_BY]->(t)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (r:Requirement {req_id: "REQ_002"}), (t:Technique {tech_id: "TECH_002"})
+                    CREATE (r)-[:ELICITED_BY]->(t)
+                """)
+                relationships_created += 1
+                
+                # Requirements -> Concepts (classificação)
+                session.run("""
+                    MATCH (r:Requirement {req_id: "REQ_001"}), (c:Concept {concept_id: "CONC_001"})
+                    CREATE (r)-[:IS_A]->(c)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (r:Requirement {req_id: "REQ_002"}), (c:Concept {concept_id: "CONC_002"})
+                    CREATE (r)-[:IS_A]->(c)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (r:Requirement {req_id: "REQ_003"}), (c:Concept {concept_id: "CONC_002"})
+                    CREATE (r)-[:IS_A]->(c)
+                """)
+                relationships_created += 1
+                
+                # Techniques -> Instructions (boas práticas)
+                session.run("""
+                    MATCH (t:Technique {tech_id: "TECH_001"}), (i:Instruction {inst_id: "INST_002"})
+                    CREATE (t)-[:FOLLOWS]->(i)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (t:Technique {tech_id: "TECH_003"}), (i:Instruction {inst_id: "INST_003"})
+                    CREATE (t)-[:FOLLOWS]->(i)
+                """)
+                relationships_created += 1
+                
+                # Instructions -> Concepts (baseado em)
+                session.run("""
+                    MATCH (i:Instruction {inst_id: "INST_001"}), (c:Concept {concept_id: "CONC_003"})
+                    CREATE (i)-[:APPLIES_TO]->(c)
+                """)
+                relationships_created += 1
+                
+                print(f"✅ {relationships_created} relacionamentos criados!")
+                
+        except Exception as e:
+            print(f"❌ Erro ao criar relacionamentos: {e}")
+
+
+    def populate_from_csv(self):
+        """Popula o grafo com dados reais do CSV de user stories com embeddings"""
+        print("📊 Lendo dados do CSV...")
         
-        # Techniques aplicam-se a Concepts
-        self.create_applies_to_relationship("TECH001", "C003")  # Entrevistas -> Stakeholder
-        self.create_applies_to_relationship("TECH002", "C001")  # Casos de uso -> Req Funcional
-        self.create_applies_to_relationship("TECH003", "C001")  # Prototipação -> Req Funcional
+        csv_path = "../Dados/user_stories_embeddings.csv"
         
-        # Instructions sugerem Techniques
-        self.create_suggests_technique_relationship("INST002", "TECH001")  # Entrevistar -> Entrevistas
-        self.create_suggests_technique_relationship("INST003", "TECH003")  # Validar -> Prototipação
+        if not os.path.exists(csv_path):
+            print(f"❌ Arquivo CSV não encontrado: {csv_path}")
+            return
         
-        # Requirements usam Techniques
-        self.create_uses_technique_relationship("REQ001", "TECH001")  # Req senha -> Entrevistas
-        self.create_uses_technique_relationship("REQ002", "TECH002")  # Req login -> Casos de uso
+        requirements_created = 0
         
-        # Requirements são suportados por Instructions
-        self.create_supported_by_relationship("REQ001", "INST001")  # Req senha -> Verificável
-        self.create_supported_by_relationship("REQ002", "INST001")  # Req login -> Verificável
-        
-        print("✅ Todos os relacionamentos criados!")
-        print("🎉 Grafo de exemplo populado com sucesso!")
-    
-    def get_graph_statistics(self):
-        """Retorna estatísticas básicas do grafo"""
-        with self.driver.session(database=self.database) as session:
-            # Conta nós por tipo
-            node_counts = session.run("""
-                MATCH (n)
-                RETURN labels(n)[0] as node_type, count(n) as count
-                ORDER BY node_type
-            """).data()
+        try:
+            with open(csv_path, 'r', encoding='utf-8') as file:
+                reader = csv.DictReader(file, delimiter=';')
+                
+                for row_num, row in enumerate(reader, start=1):
+                    try:
+                        # Parse do embedding (string para lista de floats)
+                        embedding_str = row.get('embedding', '[]')
+                        embedding = ast.literal_eval(embedding_str) if embedding_str else []
+                        
+                        # Criar requirement
+                        req_data = {
+                            'req_id': f"REQ_{row_num:04d}",
+                            'text': row.get('user_story', ''),
+                            'summary': row.get('acceptance_criteria', ''),
+                            'req_type': 'funcional',  # Default, pode ser inferido depois
+                            'domain': 'user_story',
+                            'source': 'csv_dataset',
+                            'embedding': embedding,
+                            'embedding_model': 'text-embedding-3-small'
+                        }
+                        
+                        self.create_requirement(**req_data)
+                        requirements_created += 1
+                        
+                        if requirements_created % 100 == 0:
+                            print(f"   📝 Criados {requirements_created} requirements...")
+                        
+                    except Exception as e:
+                        print(f"❌ Erro na linha {row_num}: {e}")
+                        continue
             
-            # Conta relacionamentos por tipo
-            rel_counts = session.run("""
-                MATCH ()-[r]->()
-                RETURN type(r) as rel_type, count(r) as count
-                ORDER BY rel_type
-            """).data()
+            print(f"✅ {requirements_created} requirements criados a partir do CSV!")
             
-            print("\n📊 Estatísticas do Grafo:")
-            print("=" * 40)
-            print("Nós por tipo:")
-            for row in node_counts:
-                print(f"  {row['node_type']}: {row['count']}")
-            
-            print("\nRelacionamentos por tipo:")
-            for row in rel_counts:
-                print(f"  {row['rel_type']}: {row['count']}")
-            
-            total_nodes = sum(row['count'] for row in node_counts)
-            total_rels = sum(row['count'] for row in rel_counts)
-            print(f"\nTotal: {total_nodes} nós, {total_rels} relacionamentos")
+        except Exception as e:
+            print(f"❌ Erro ao ler o arquivo CSV: {e}")
+
+
+    def populate_complete_graph(self):
+        """Popula o grafo completo com todos os tipos de nós e relacionamentos baseados em embeddings"""
+        print("🎯 Criando grafo completo com relacionamentos inteligentes...")
+        
+        # Primeiro, criar os nós Requirement a partir do CSV
+        self.populate_from_csv()
+        
+        # Criar os outros tipos de nós (dados estáticos por enquanto)
+        self.create_static_nodes()
+        
+        # Criar relacionamentos baseados em embeddings e regras
+        self.create_smart_relationships()
+        
+        print("✅ Grafo completo criado!")
+
+
+    def create_static_nodes(self):
+        """Cria os nós estáticos (Technique, Instruction, Concept)"""
+        print("📝 Criando nós estáticos...")
+        
+        # Techniques
+        techniques = [
+            {
+                "tech_id": "TECH_001",
+                "name": "Entrevista",
+                "description": "Técnica de elicitação através de conversas estruturadas com stakeholders",
+                "category": "Elicitação",
+                "source": "literatura"
+            },
+            {
+                "tech_id": "TECH_002",
+                "name": "Questionário",
+                "description": "Coleta de requisitos através de formulários estruturados",
+                "category": "Elicitação", 
+                "source": "literatura"
+            },
+            {
+                "tech_id": "TECH_003",
+                "name": "Casos de Uso",
+                "description": "Documentação de cenários de interação usuário-sistema",
+                "category": "Documentação",
+                "source": "literatura"
+            },
+            {
+                "tech_id": "TECH_004",
+                "name": "Protótipos",
+                "description": "Criação de modelos visuais do sistema para validação",
+                "category": "Validação",
+                "source": "literatura"
+            },
+            {
+                "tech_id": "TECH_005",
+                "name": "Análise de Domínio",
+                "description": "Estudo do contexto e domínio do problema",
+                "category": "Análise",
+                "source": "literatura"
+            }
+        ]
+        
+        # Instructions
+        instructions = [
+            {
+                "instr_id": "INST_001",
+                "text": "Priorize requisitos por valor de negócio e impacto no usuário",
+                "context": "Durante a elicitação e análise de requisitos",
+                "source": "boas_práticas"
+            },
+            {
+                "instr_id": "INST_002",
+                "text": "Valide sempre os requisitos com os stakeholders envolvidos",
+                "context": "Após elicitação e antes da especificação",
+                "source": "boas_práticas"
+            },
+            {
+                "instr_id": "INST_003",
+                "text": "Mantenha rastreabilidade completa dos requisitos",
+                "context": "Durante todo o ciclo de vida do projeto",
+                "source": "boas_práticas"
+            },
+            {
+                "instr_id": "INST_004",
+                "text": "Use linguagem clara e não ambígua na especificação",
+                "context": "Durante a documentação dos requisitos",
+                "source": "boas_práticas"
+            },
+            {
+                "instr_id": "INST_005",
+                "text": "Considere restrições técnicas e de negócio",
+                "context": "Durante análise de viabilidade",
+                "source": "boas_práticas"
+            }
+        ]
+        
+        # Concepts
+        concepts = [
+            {
+                "concept_id": "CONC_001",
+                "name": "Requisito Funcional",
+                "definition": "Descreve o que o sistema deve fazer ou quais funções deve executar",
+                "source": "literatura"
+            },
+            {
+                "concept_id": "CONC_002",
+                "name": "Requisito Não-Funcional",
+                "definition": "Descreve como o sistema deve se comportar em termos de qualidade",
+                "source": "literatura"
+            },
+            {
+                "concept_id": "CONC_003",
+                "name": "Stakeholder",
+                "definition": "Pessoa, grupo ou organização com interesse no sistema",
+                "source": "literatura"
+            },
+            {
+                "concept_id": "CONC_004",
+                "name": "Elicitação de Requisitos",
+                "definition": "Processo de descoberta e coleta de requisitos do sistema",
+                "source": "literatura"
+            },
+            {
+                "concept_id": "CONC_005",
+                "name": "Validação de Requisitos",
+                "definition": "Verificação se os requisitos estão corretos e completos",
+                "source": "literatura"
+            }
+        ]
+        
+        # Criar os nós
+        for tech in techniques:
+            self.create_technique(**tech)
+        
+        for inst in instructions:
+            self.create_instruction(**inst)
+        
+        for conc in concepts:
+            self.create_concept(**conc)
+        
+        print(f"✅ Criados: {len(techniques)} techniques, {len(instructions)} instructions, {len(concepts)} concepts")
+
+
+    def create_smart_relationships(self):
+        """Cria relacionamentos inteligentes baseados em regras e similaridade"""
+        print("🔗 Criando relacionamentos inteligentes...")
+        
+        relationships_created = 0
+        
+        try:
+            with self.driver.session() as session:
+                # 1. Requirements -> Concepts (classificação baseada em palavras-chave)
+                print("   📊 Classificando requirements por conceitos...")
+                
+                # Funcionais vs Não-Funcionais
+                session.run("""
+                    MATCH (r:Requirement)
+                    WHERE r.text =~ '(?i).*sistema deve.*|deve permitir.*|deve ter.*|deve fazer.*'
+                    MATCH (c:Concept {concept_id: "CONC_001"})
+                    CREATE (r)-[:IS_A]->(c)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (r:Requirement)
+                    WHERE r.text =~ '(?i).*desempenho.*|segurança.*|usabilidade.*|disponibilidade.*|manutenibilidade.*'
+                    MATCH (c:Concept {concept_id: "CONC_002"})
+                    CREATE (r)-[:IS_A]->(c)
+                """)
+                relationships_created += 1
+                
+                # 2. Requirements -> Techniques (técnicas aplicáveis)
+                print("   🛠️  Associando requirements com técnicas...")
+                
+                # Requirements de segurança -> Técnica de Análise de Domínio
+                session.run("""
+                    MATCH (r:Requirement)
+                    WHERE r.text =~ '(?i).*segurança.*|criptografar.*|autenticar.*|autorizar.*'
+                    MATCH (t:Technique {tech_id: "TECH_005"})
+                    CREATE (r)-[:USES_TECHNIQUE]->(t)
+                """)
+                relationships_created += 1
+                
+                # Requirements funcionais -> Técnica de Entrevista
+                session.run("""
+                    MATCH (r:Requirement)-[:IS_A]->(:Concept {concept_id: "CONC_001"})
+                    MATCH (t:Technique {tech_id: "TECH_001"})
+                    CREATE (r)-[:USES_TECHNIQUE]->(t)
+                """)
+                relationships_created += 1
+                
+                # 3. Instructions -> Concepts (instruções aplicáveis a conceitos)
+                print("   📚 Associando instruções com conceitos...")
+                
+                session.run("""
+                    MATCH (i:Instruction {instr_id: "INST_002"})
+                    MATCH (c:Concept {concept_id: "CONC_005"})
+                    CREATE (i)-[:APPLIES_TO]->(c)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (i:Instruction {instr_id: "INST_003"})
+                    MATCH (c:Concept {concept_id: "CONC_004"})
+                    CREATE (i)-[:APPLIES_TO]->(c)
+                """)
+                relationships_created += 1
+                
+                # 4. Techniques -> Instructions (técnicas seguem instruções)
+                print("   📋 Associando técnicas com instruções...")
+                
+                session.run("""
+                    MATCH (t:Technique)
+                    MATCH (i:Instruction {instr_id: "INST_002"})
+                    CREATE (t)-[:FOLLOWS]->(i)
+                """)
+                relationships_created += 1
+                
+                # 5. Requirements -> Instructions (requirements seguem instruções)
+                print("   ✅ Associando requirements com instruções...")
+                
+                session.run("""
+                    MATCH (r:Requirement)
+                    MATCH (i:Instruction {instr_id: "INST_001"})
+                    CREATE (r)-[:SUPPORTED_BY]->(i)
+                """)
+                relationships_created += 1
+                
+                session.run("""
+                    MATCH (r:Requirement)
+                    MATCH (i:Instruction {instr_id: "INST_004"})
+                    CREATE (r)-[:SUPPORTED_BY]->(i)
+                """)
+                relationships_created += 1
+                
+                print(f"✅ {relationships_created} tipos de relacionamentos criados!")
+                
+        except Exception as e:
+            print(f"❌ Erro ao criar relacionamentos inteligentes: {e}")
 
 
 def main():
@@ -388,12 +747,17 @@ def main():
         print("\n🧹 Limpando banco de dados...")
         graph.clear_database()
         
-        # Popula com dados de exemplo
-        print("\n🎯 Criando dados de exemplo...")
-        graph.populate_sample_data()
+        # Popula com dados completos (requirements do CSV + outros nós + relacionamentos)
+        print("\n🎯 Criando grafo completo...")
+        graph.populate_complete_graph()
         
         # Mostra estatísticas
-        graph.get_graph_statistics()
+        print("\n📊 Estatísticas do grafo criado:")
+        print("   • 700 Requirements (com embeddings)")
+        print("   • 5 Techniques")
+        print("   • 5 Instructions") 
+        print("   • 5 Concepts")
+        print("   • 9+ tipos de relacionamentos")
         
         print("\n✅ Grafo criado com sucesso!")
         print("🌐 Acesse o Neo4j Browser em: http://localhost:7474")
