@@ -34,23 +34,23 @@ class Neo4jGraphCreator:
             # Testa a conexão
             with self.driver.session(database=self.database) as session:
                 session.run("RETURN 1")
-            print("✅ Conexão com Neo4j estabelecida com sucesso!")
+            print("Conexão com Neo4j estabelecida com sucesso!")
             return True
         except Exception as e:
-            print(f"❌ Erro ao conectar com Neo4j: {e}")
+            print(f"Erro ao conectar com Neo4j: {e}")
             return False
     
     def close(self):
         """Fecha a conexão com Neo4j"""
         if self.driver:
             self.driver.close()
-            print("🔌 Conexão com Neo4j fechada")
+            print("Conexão com Neo4j fechada")
     
     def clear_database(self):
         """Limpa todos os nós e relacionamentos do banco"""
         with self.driver.session(database=self.database) as session:
             session.run("MATCH (n) DETACH DELETE n")
-            print("🧹 Banco de dados limpo")
+            print("Banco de dados limpo")
     
     def __enter__(self):
         """Context manager entry"""
@@ -92,7 +92,7 @@ class Neo4jGraphCreator:
                 'embedding': embedding or [],
                 'embedding_model': embedding_model
             })
-            print(f"✅ Requirement criado: {req_id}")
+            print(f"Requirement criado: {req_id}")
             return result.single()[0]
     
     def create_technique(self, tech_id: str, name: str, description: str = "",
@@ -124,7 +124,7 @@ class Neo4jGraphCreator:
                 'embedding': embedding or [],
                 'embedding_model': embedding_model
             })
-            print(f"✅ Technique criada: {name}")
+            print(f"Technique criada: {name}")
             return result.single()[0]
     
     def create_instruction(self, instr_id: str, text: str, context: str = "",
@@ -153,7 +153,7 @@ class Neo4jGraphCreator:
                 'embedding': embedding or [],
                 'embedding_model': embedding_model
             })
-            print(f"✅ Instruction criada: {instr_id}")
+            print(f"Instruction criada: {instr_id}")
             return result.single()[0]
     
     def create_concept(self, concept_id: str, name: str, definition: str = "",
@@ -182,7 +182,7 @@ class Neo4jGraphCreator:
                 'embedding': embedding or [],
                 'embedding_model': embedding_model
             })
-            print(f"✅ Concept criado: {name}")
+            print(f"Concept criado: {name}")
             return result.single()[0]
     
     # Funções para criar relacionamentos
@@ -195,7 +195,7 @@ class Neo4jGraphCreator:
             CREATE (r)-[:USES_TECHNIQUE]->(t)
             """
             session.run(query, {'req_id': req_id, 'tech_id': tech_id})
-            print(f"✅ Relacionamento USES_TECHNIQUE criado: {req_id} -> {tech_id}")
+            print(f"Relacionamento USES_TECHNIQUE criado: {req_id} -> {tech_id}")
     
     def create_refers_to_relationship(self, instr_id: str, concept_id: str):
         """Cria relacionamento (:Instruction)-[:REFERS_TO]->(:Concept)"""
@@ -206,7 +206,7 @@ class Neo4jGraphCreator:
             CREATE (i)-[:REFERS_TO]->(c)
             """
             session.run(query, {'instr_id': instr_id, 'concept_id': concept_id})
-            print(f"✅ Relacionamento REFERS_TO criado: {instr_id} -> {concept_id}")
+            print(f"Relacionamento REFERS_TO criado: {instr_id} -> {concept_id}")
     
     def create_is_related_to_relationship(self, req_id: str, concept_id: str):
         """Cria relacionamento (:Requirement)-[:IS_RELATED_TO]->(:Concept)"""
@@ -217,7 +217,7 @@ class Neo4jGraphCreator:
             CREATE (r)-[:IS_RELATED_TO]->(c)
             """
             session.run(query, {'req_id': req_id, 'concept_id': concept_id})
-            print(f"✅ Relacionamento IS_RELATED_TO criado: {req_id} -> {concept_id}")
+            print(f"Relacionamento IS_RELATED_TO criado: {req_id} -> {concept_id}")
     
     def create_applies_to_relationship(self, tech_id: str, concept_id: str):
         """Cria relacionamento (:Technique)-[:APPLIES_TO]->(:Concept)"""
@@ -228,7 +228,7 @@ class Neo4jGraphCreator:
             CREATE (t)-[:APPLIES_TO]->(c)
             """
             session.run(query, {'tech_id': tech_id, 'concept_id': concept_id})
-            print(f"✅ Relacionamento APPLIES_TO criado: {tech_id} -> {concept_id}")
+            print(f"Relacionamento APPLIES_TO criado: {tech_id} -> {concept_id}")
     
     def create_suggests_technique_relationship(self, instr_id: str, tech_id: str):
         """Cria relacionamento (:Instruction)-[:SUGGESTS_TECHNIQUE]->(:Technique)"""
@@ -239,7 +239,7 @@ class Neo4jGraphCreator:
             CREATE (i)-[:SUGGESTS_TECHNIQUE]->(t)
             """
             session.run(query, {'instr_id': instr_id, 'tech_id': tech_id})
-            print(f"✅ Relacionamento SUGGESTS_TECHNIQUE criado: {instr_id} -> {tech_id}")
+            print(f"Relacionamento SUGGESTS_TECHNIQUE criado: {instr_id} -> {tech_id}")
     
     def create_supported_by_relationship(self, req_id: str, instr_id: str):
         """Cria relacionamento (:Requirement)-[:SUPPORTED_BY]->(:Instruction)"""
@@ -250,11 +250,11 @@ class Neo4jGraphCreator:
             CREATE (r)-[:SUPPORTED_BY]->(i)
             """
             session.run(query, {'req_id': req_id, 'instr_id': instr_id})
-            print(f"✅ Relacionamento SUPPORTED_BY criado: {req_id} -> {instr_id}")
+            print(f"Relacionamento SUPPORTED_BY criado: {req_id} -> {instr_id}")
     
     def populate_sample_data(self):
         """Popula o grafo com dados de exemplo para demonstração"""
-        print("🎯 Criando dados de exemplo...")
+        print("Criando dados de exemplo...")
         
         # Criar Requirements de exemplo
         requirements = [
@@ -374,13 +374,13 @@ class Neo4jGraphCreator:
         
         # Criar relacionamentos
         self.create_relationships_sample()
-        
-        print(f"✅ {len(requirements)} requirements, {len(techniques)} techniques, {len(instructions)} instructions, {len(concepts)} concepts criados!")
+
+        print(f"{len(requirements)} requirements, {len(techniques)} techniques, {len(instructions)} instructions, {len(concepts)} concepts criados!")
 
 
     def create_relationships_sample(self):
         """Cria relacionamentos de exemplo entre os nós"""
-        print("🔗 Criando relacionamentos...")
+        print("Criando relacionamentos...")
         
         relationships_created = 0
         
@@ -438,20 +438,20 @@ class Neo4jGraphCreator:
                 """)
                 relationships_created += 1
                 
-                print(f"✅ {relationships_created} relacionamentos criados!")
+                print(f"{relationships_created} relacionamentos criados!")
                 
         except Exception as e:
-            print(f"❌ Erro ao criar relacionamentos: {e}")
+            print(f"Erro ao criar relacionamentos: {e}")
 
 
     def populate_from_csv(self):
         """Popula o grafo com dados reais do CSV de user stories com embeddings"""
-        print("📊 Lendo dados do CSV...")
+        print("Lendo dados do CSV...")
         
         csv_path = "../Dados/user_stories_embeddings.csv"
         
         if not os.path.exists(csv_path):
-            print(f"❌ Arquivo CSV não encontrado: {csv_path}")
+            print(f"Arquivo CSV não encontrado: {csv_path}")
             return
         
         requirements_created = 0
@@ -482,21 +482,21 @@ class Neo4jGraphCreator:
                         requirements_created += 1
                         
                         if requirements_created % 100 == 0:
-                            print(f"   📝 Criados {requirements_created} requirements...")
+                            print(f"   Criados {requirements_created} requirements...")
                         
                     except Exception as e:
-                        print(f"❌ Erro na linha {row_num}: {e}")
+                        print(f"Erro na linha {row_num}: {e}")
                         continue
             
-            print(f"✅ {requirements_created} requirements criados a partir do CSV!")
+            print(f"{requirements_created} requirements criados a partir do CSV!")
             
         except Exception as e:
-            print(f"❌ Erro ao ler o arquivo CSV: {e}")
+            print(f"Erro ao ler o arquivo CSV: {e}")
 
 
     def populate_complete_graph(self):
         """Popula o grafo completo com todos os tipos de nós e relacionamentos baseados em embeddings"""
-        print("🎯 Criando grafo completo com relacionamentos inteligentes...")
+        print("Criando grafo completo com relacionamentos inteligentes...")
         
         # Primeiro, criar os nós Requirement a partir do CSV
         self.populate_from_csv()
@@ -512,7 +512,7 @@ class Neo4jGraphCreator:
 
     def create_static_nodes(self):
         """Cria os nós estáticos (Technique, Instruction, Concept)"""
-        print("📝 Criando nós estáticos...")
+        print("Criando nós estáticos...")
         
         # Techniques
         techniques = [
@@ -631,19 +631,19 @@ class Neo4jGraphCreator:
         for conc in concepts:
             self.create_concept(**conc)
         
-        print(f"✅ Criados: {len(techniques)} techniques, {len(instructions)} instructions, {len(concepts)} concepts")
+        print(f"Criados: {len(techniques)} techniques, {len(instructions)} instructions, {len(concepts)} concepts")
 
 
     def create_smart_relationships(self):
         """Cria relacionamentos inteligentes baseados em regras e similaridade"""
-        print("🔗 Criando relacionamentos inteligentes...")
+        print("Criando relacionamentos inteligentes...")
         
         relationships_created = 0
         
         try:
             with self.driver.session() as session:
                 # 1. Requirements -> Concepts (classificação baseada em palavras-chave)
-                print("   📊 Classificando requirements por conceitos...")
+                print("   Classificando requirements por conceitos...")
                 
                 # Funcionais vs Não-Funcionais
                 session.run("""
@@ -663,7 +663,7 @@ class Neo4jGraphCreator:
                 relationships_created += 1
                 
                 # 2. Requirements -> Techniques (técnicas aplicáveis)
-                print("   🛠️  Associando requirements com técnicas...")
+                print("   Associando requirements com técnicas...")
                 
                 # Requirements de segurança -> Técnica de Análise de Domínio
                 session.run("""
@@ -683,7 +683,7 @@ class Neo4jGraphCreator:
                 relationships_created += 1
                 
                 # 3. Instructions -> Concepts (instruções aplicáveis a conceitos)
-                print("   📚 Associando instruções com conceitos...")
+                print("   Associando instruções com conceitos...")
                 
                 session.run("""
                     MATCH (i:Instruction {instr_id: "INST_002"})
@@ -700,7 +700,7 @@ class Neo4jGraphCreator:
                 relationships_created += 1
                 
                 # 4. Techniques -> Instructions (técnicas seguem instruções)
-                print("   📋 Associando técnicas com instruções...")
+                print("   Associando técnicas com instruções...")
                 
                 session.run("""
                     MATCH (t:Technique)
@@ -710,7 +710,7 @@ class Neo4jGraphCreator:
                 relationships_created += 1
                 
                 # 5. Requirements -> Instructions (requirements seguem instruções)
-                print("   ✅ Associando requirements com instruções...")
+                print("   Associando requirements com instruções...")
                 
                 session.run("""
                     MATCH (r:Requirement)
@@ -726,15 +726,15 @@ class Neo4jGraphCreator:
                 """)
                 relationships_created += 1
                 
-                print(f"✅ {relationships_created} tipos de relacionamentos criados!")
+                print(f"{relationships_created} tipos de relacionamentos criados!")
                 
         except Exception as e:
-            print(f"❌ Erro ao criar relacionamentos inteligentes: {e}")
+            print(f"Erro ao criar relacionamentos inteligentes: {e}")
 
 
 def main():
     """Função principal para executar a criação do grafo"""
-    print("🚀 Iniciando criação do Grafo de Conhecimento de Engenharia de Requisitos")
+    print("Iniciando criação do Grafo de Conhecimento de Engenharia de Requisitos")
     print("=" * 70)
     
     # Cria o grafo usando context manager
@@ -744,24 +744,24 @@ def main():
             return
         
         # Limpa o banco (cuidado em produção!)
-        print("\n🧹 Limpando banco de dados...")
+        print("\nLimpando banco de dados...")
         graph.clear_database()
         
         # Popula com dados completos (requirements do CSV + outros nós + relacionamentos)
-        print("\n🎯 Criando grafo completo...")
+        print("\nCriando grafo completo...")
         graph.populate_complete_graph()
         
         # Mostra estatísticas
-        print("\n📊 Estatísticas do grafo criado:")
+        print("\nEstatísticas do grafo criado:")
         print("   • 700 Requirements (com embeddings)")
         print("   • 5 Techniques")
         print("   • 5 Instructions") 
         print("   • 5 Concepts")
         print("   • 9+ tipos de relacionamentos")
         
-        print("\n✅ Grafo criado com sucesso!")
-        print("🌐 Acesse o Neo4j Browser em: http://localhost:7474")
-        print("🔍 Execute esta query para visualizar o grafo:")
+        print("\nGrafo criado com sucesso!")
+        print("Acesse o Neo4j Browser em: http://localhost:7474")
+        print("Execute esta query para visualizar o grafo:")
         print("   MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25")
 
 

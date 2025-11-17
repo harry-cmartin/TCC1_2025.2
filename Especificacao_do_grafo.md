@@ -1,9 +1,9 @@
-Perfeito 🔥 — entendi tua visão direitinho:
+Perfeito — entendi tua visão direitinho:
 
 
-# 🧩 **Modelo de Grafo de Conhecimento para Engenharia de Requisitos (com embeddings)**
+# **Modelo de Grafo de Conhecimento para Engenharia de Requisitos (com embeddings)**
 
-## 🌐 Tipos de Nós
+## Tipos de Nós
 
 ### 1. **Requirement** — Requisitos de software (instâncias reais)
 
@@ -101,7 +101,7 @@ Label: :Concept
 
 ---
 
-## 🔗 **Relações Principais**
+## **Relações Principais**
 
 | Relação                                              | Direção                   | Descrição                                                  | Exemplo                                                                             |
 | ---------------------------------------------------- | ------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -114,7 +114,7 @@ Label: :Concept
 
 ---
 
-## 💾 **Exemplo de criação no Neo4j (Cypher com embeddings dentro dos nós)**
+## **Exemplo de criação no Neo4j (Cypher com embeddings dentro dos nós)**
 
 ```cypher
 // Exemplo de requisito real
