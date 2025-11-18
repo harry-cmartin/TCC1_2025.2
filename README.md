@@ -12,7 +12,7 @@ O projeto é parte do TCC (Trabalho de Conclusão de Curso) de 2025.2, com foco 
 - **Neo4j**: Banco de dados de grafos para armazenamento e consultas
 - **Cypher**: Linguagem de consulta do Neo4j
 - **Docker**: Containerização do Neo4j para desenvolvimento
-- **ChatGPT 4.0+**: IA para geração de prompts e conteúdo
+- **ChatGPT 5.1+**: IA para geração de prompts e conteúdo
 - **Claude Sonnet**: Modelo principal para engenharia de prompt e geração de grafos
 - **python-dotenv**: Gerenciamento de variáveis de ambiente
 - **neo4j-driver**: Driver oficial para conexão Python-Neo4j
@@ -91,24 +91,10 @@ Após executar o script, acesse:
 - **Credenciais**: neo4j / testpassword
 
 ```cypher
-MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25
+MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 700
 ```
 
-## 📁 Estrutura de Arquivos
-
-```
-TCC1_2025.2/
-├── README.md                    # Visão geral do projeto
-├── README_completo.md          # Este arquivo - documentação completa
-├── requirements.txt             # Dependências Python
-├── Especificacao_do_grafo.md    # Especificação detalhada do modelo
-└── Knowledge_Graphs/
-    ├── README_grafo.md          # Documentação específica do grafo
-    ├── graph_creator.py         # Script principal
-    └── .env                     # Configurações (não versionado)
-```
-
-## 💻 Explicação Detalhada do Código
+##  Explicação Detalhada do Código
 
 ### graph_creator.py
 
@@ -158,24 +144,6 @@ Cada tipo de nó tem seu método específico:
 - Para conceitos fundamentais
 - Propriedades: `concept_id`, `name`, `definition`, `source`, `embedding`
 
-#### Métodos de Relacionamentos
-
-Cada tipo de relacionamento tem seu método:
-
-**`create_uses_technique_relationship`**:
-
-- Cria `(:Requirement)-[:USES_TECHNIQUE]->(:Technique)`
-
-**`create_refers_to_relationship`**:
-
-- Cria `(:Instruction)-[:REFERS_TO]->(:Concept)`
-
-**`create_is_related_to_relationship`**:
-
-- Cria `(:Requirement)-[:IS_RELATED_TO]->(:Concept)`
-
-E assim por diante para todos os tipos especificados.
-
 #### População de Dados (`populate_sample_data`)
 
 Este método cria dados de exemplo baseados na especificação:
@@ -206,15 +174,6 @@ Orquestra todo o processo:
 4. Mostra estatísticas
 5. Fornece instruções para visualização
 
-## Fontes de Dados
-
-O projeto suporta múltiplas fontes para população do grafo:
-
-- **Documentos Acadêmicos**: Livros como "Software Requirements" (Wiegers), padrões IEEE
-- **Repositórios GitHub**: Projetos open-source relacionados a requisitos (Jira, GitHub Issues)
-- **APIs Públicas**: Dados estruturados de APIs como arXiv, Wikipedia
-- **Geração via IA**: Uso de prompts com Claude Sonnet para extrair dados de textos não estruturados ou gerar exemplos sintéticos
-
 ## Modelo de Embeddings
 
 Para representação semântica, utilizamos embeddings de texto.
@@ -228,10 +187,6 @@ Para representação semântica, utilizamos embeddings de texto.
 - Labels: `:Requirement`, `:Technique`, `:Instruction`, `:Concept`
 - Propriedades comuns: `id`, `name/text`, `description`, `source`, `embedding`, `created_at`
 
-**Relacionamentos**:
-
-- Tipos específicos conectando os nós
-- Propriedades opcionais (ex.: força do relacionamento)
 
 ### Persistência
 
@@ -239,25 +194,5 @@ Para representação semântica, utilizamos embeddings de texto.
 - Consultas e visualização no Neo4j Browser
 - Suporte a buscas semânticas via embeddings
 
-### Queries Úteis
 
-```cypher
-// Visualizar grafo
-MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 25
 
-// Contar nós por tipo
-MATCH (n) RETURN labels(n)[0] as tipo, count(n) as total ORDER BY tipo
-
-// Buscar por domínio
-MATCH (r:Requirement {domain: "segurança"}) RETURN r
-
-// Técnicas de elicitação
-MATCH (t:Technique {category: "Elicitação"}) RETURN t
-```
-
-## Próximos Passos
-
-1. **Integração com IA**: Implementar geração automática de grafos via Claude Sonnet
-2. **Interface Web**: Criar dashboard para visualização e edição do grafo
-3. **Queries Avançadas**: Implementar busca semântica e recomendações
-4. **Validação**: Testes automatizados e métricas de qualidade do grafo
