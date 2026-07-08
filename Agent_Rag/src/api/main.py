@@ -103,6 +103,25 @@ def create_app() -> FastAPI:
     app.include_router(chat_routes.router)
     app.include_router(ws_routes.router)
 
+    # Configuração para servir o frontend (Vite SPA) no mesmo servidor (ex: Hugging Face Spaces)
+    static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "frontend", "dist"))
+    if os.path.exists(static_dir):
+        from fastapi.staticfiles import StaticFiles
+        from fastapi.responses import FileResponse
+
+        # Serve a pasta /assets (CSS/JS do Vite)
+        assets_dir = os.path.join(static_dir, "assets")
+        if os.path.exists(assets_dir):
+            app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+        # Rota catch-all para servir arquivos estáticos da raiz ou o index.html (SPA)
+        @app.get("/{full_path:path}")
+        async def serve_spa(full_path: str):
+            file_path = os.path.join(static_dir, full_path)
+            if os.path.isfile(file_path):
+                return FileResponse(file_path)
+            return FileResponse(os.path.join(static_dir, "index.html"))
+
     return app
 
 

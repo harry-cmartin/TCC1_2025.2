@@ -106,10 +106,10 @@ def main():
     print(f"Reading data from {json_path}...")
     data = load_data(json_path)
     
-    if os.path.exists(gabarito_path):
-        print(f"Reading data from {gabarito_path}...")
-        gabarito_data = load_data(gabarito_path)
-        data['results'].extend(gabarito_data['results'])
+    # if os.path.exists(gabarito_path):
+    #     print(f"Reading data from {gabarito_path}...")
+    #     gabarito_data = load_data(gabarito_path)
+    #     data['results'].extend(gabarito_data['results'])
 
     
     time_agg, rels_agg, types_agg, density_agg = aggregate_data(data)

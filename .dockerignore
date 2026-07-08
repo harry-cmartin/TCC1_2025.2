@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+.DS_Store
+.venv
+venv
+__pycache__
+*.pyc
+node_modules
+npm-debug.log
+yarn-error.log
+dist
+build
