@@ -1,0 +1,599 @@
+{
+  "meta": {
+    "topic": "tarefas",
+    "count": 20,
+    "runs": 3,
+    "scenarios": [
+      "A",
+      "B",
+      "C"
+    ],
+    "model": "openrouter/deepseek/deepseek-chat-v3.1",
+    "timestamp": "2026-06-27T10:52:32.587816",
+    "note": "A=Modelo Cru(zero-shot) | B=Básico(RELATED_TO) | C=DSPy Otimizado",
+    "scenario_descriptions": {
+      "A": "A — Modelo Cru (zero-shot, sem guia)",
+      "B": "B — Prompt Básico (JSON + RELATED_TO)",
+      "C": "C — DSPy Otimizado (tipos + exemplos + CoT)"
+    },
+    "human_effort": {
+      "A": {
+        "setup_horas": "~0",
+        "prompt_engineering": "Nenhum — prompt mínimo de 1 linha",
+        "iteracoes_prompt": 0,
+        "codigo_extra": "Apenas chamar o LLM com topic -> text",
+        "nivel": "Baixo"
+      },
+      "B": {
+        "setup_horas": "~1-2h",
+        "prompt_engineering": "Manual — instrução de JSON + definição de RELATED_TO",
+        "iteracoes_prompt": 3,
+        "codigo_extra": "Signature DSPy + parser JSON",
+        "nivel": "Médio"
+      },
+      "C": {
+        "setup_horas": "~8-16h",
+        "prompt_engineering": "Otimização via DSPy (compilação de few-shot, tipos semânticos, critérios)",
+        "iteracoes_prompt": 10,
+        "codigo_extra": "DSPy ReAct + Signatures + compiled_agent.json + infer_relationships_optimized",
+        "nivel": "Alto"
+      }
+    }
+  },
+  "results": [
+    {
+      "scenario": "A",
+      "run": 1,
+      "graph_id": "eval_a_tarefas_0_1782566889",
+      "time_gen_s": 23.04,
+      "time_rel_s": 48.62,
+      "time_total_s": 95.82,
+      "nodes": 20,
+      "llm_relationships": 0,
+      "llm_rel_types": [],
+      "total_relationships": 123,
+      "rel_breakdown": {
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 3
+      },
+      "graph_density": 0.3237,
+      "unique_domains": 1,
+      "theme_adherence_pct": 100.0,
+      "sample_req": "O sistema deve permitir que o usuário crie uma nova tarefa com um título.",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O tópico é \"tarefas\" de forma genérica, então vou considerar um sistema de gerenciamento de tarefas (to-do list ou similar). Os requisitos devem cobrir funcionalidades básicas e avançadas, considerando usabilidade, gerenciamento, notificações, colaboração e integração. Vou gerar 20 requisitos variados, focando em ações do usuário e características do sistema."
+      ],
+      "chain_of_thought_rel": [
+        "Vou analisar os requisitos listados para identificar relações entre eles. Os itens são todos requisitos funcionais para um sistema de gerenciamento de tarefas. Observo que muitos requisitos se agrupam em categorias temáticas:\n\n1. **Criação e gerenciamento básico de tarefas** (000-006): Requisitos para criar, editar, excluir e marcar tarefas como concluídas.\n2. **Organização e categorização** (007-009): Envolve listas/projetos, tags e visualização de calendário.\n3. **Lembretes e notificações** (010-011): Foco em alertas e tarefas recorrentes.\n4. **Colaboração e compartilhamento** (012-014): Compartilhamento, comentários e anexos.\n5. **Busca, ordenação e visualização** (015-017): Funcionalidades para encontrar e organizar a visualização das tarefas.\n6. **Sincronização e exportação** (018-019): Aspectos de portabilidade e acesso multiplataforma.\n\nAlgumas relações específicas são evidentes:\n- REQ 002 (data de vencimento) é um pré-requisito para REQ 009 (visualização de calendário) e REQ 010 (notificações).\n- REQ 007 (listas/projetos) e REQ 008 (tags) são formas complementares de organização.\n- REQ 012 (compartilhamento) habilita REQ 013 (comentários colaborativos).\n- REQ 017 (dashboard) pode depender de dados como status (REQ 004) e prioridade (REQ 003) para suas métricas.\n- REQ 018 (sincronização) é uma base para acesso consistente, afetando quase todos os outros requisitos.\n- REQ 015 (busca) pode utilizar dados de título (REQ 000), descrição (REQ 001) e tags (REQ 008).\n\nHá também uma relação geral de **dependência**: requisitos de dados básicos (como criar tarefa com título, descrição, data) são fundamentais para funcionalidades mais avançadas (como notificações, busca, dashboard). Além disso, há uma **evolução funcional** do sistema, partindo de operações básicas de CRUD até colaboração, relatórios e integração."
+      ],
+      "llm_rel_sample": []
+    },
+    {
+      "scenario": "A",
+      "run": 2,
+      "graph_id": "eval_a_tarefas_1_1782566986",
+      "time_gen_s": 25.93,
+      "time_rel_s": 49.73,
+      "time_total_s": 81.4,
+      "nodes": 20,
+      "llm_relationships": 0,
+      "llm_rel_types": [
+        "RELATED_TO"
+      ],
+      "total_relationships": 123,
+      "rel_breakdown": {
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 1,
+        "USES_TECHNIQUE": 2
+      },
+      "graph_density": 0.3237,
+      "unique_domains": 1,
+      "theme_adherence_pct": 75.0,
+      "sample_req": "*Requisitos Funcionais:**",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O tópico é \"tarefas\". Para gerar 20 requisitos de software, considero um sistema de gerenciamento de tarefas (to-do list ou task management). Esses requisitos devem cobrir funcionalidades essenciais como criação, organização, priorização, colaboração, notificações e relatórios. Dividi-os em requisitos funcionais e não funcionais para uma cobertura abrangente."
+      ],
+      "chain_of_thought_rel": [
+        "Vou analisar a lista de itens fornecida, que são requisitos de um sistema de gerenciamento de tarefas. Primeiro, identifico que há dois tipos principais de requisitos: funcionais (REQ_eval_a_t001 a REQ_eval_a_t015) e não funcionais (REQ_eval_a_t017 a REQ_eval_a_t019), com REQ_eval_a_t000 e REQ_eval_a_t016 atuando como cabeçalhos. Dentro dos funcionais, observo que os requisitos podem ser agrupados por funcionalidades relacionadas, como operações básicas de tarefas (criação, edição, conclusão), atributos de tarefas (prioridade, categorização, organização), recursos avançados (lembretes, repetição, anexos, colaboração, comentários), e funcionalidades de interface/relatório (dashboard, busca/filtragem, ordenação, exportação). Os não funcionais tratam de desempenho, acessibilidade e segurança. As relações incluem hierarquia (cabeçalhos para categorias), similaridade (requisitos que tratam de aspectos semelhantes, como manipulação de tarefas), e dependência implícita (alguns recursos podem depender de outros, por exemplo, filtragem pode depender da existência de atributos como prioridade). Vou listar essas relações de forma clara e textual."
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_EVAL_A_T000",
+          "to": "REQ_EVAL_A_T001",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T015",
+          "to": "REQ_EVAL_A_T016",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T017",
+          "to": "REQ_EVAL_A_T018",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T019",
+          "to": "REQ_EVAL_A_T001",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T002",
+          "to": "REQ_EVAL_A_T003",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        }
+      ]
+    },
+    {
+      "scenario": "A",
+      "run": 3,
+      "graph_id": "eval_a_tarefas_2_1782567068",
+      "time_gen_s": 54.93,
+      "time_rel_s": 83.67,
+      "time_total_s": 149.36,
+      "nodes": 20,
+      "llm_relationships": 0,
+      "llm_rel_types": [
+        "RELATED_TO"
+      ],
+      "total_relationships": 123,
+      "rel_breakdown": {
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 1,
+        "USES_TECHNIQUE": 2
+      },
+      "graph_density": 0.3237,
+      "unique_domains": 1,
+      "theme_adherence_pct": 95.0,
+      "sample_req": "O sistema deve permitir a criação de tarefas com título e descrição.",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O tema \"tarefas\" é amplo e pode ser aplicado a diversos contextos, como gestão de projetos, aplicações pessoais de produtividade ou sistemas empresariais. Para gerar 20 requisitos, considerei funcionalidades essenciais como criação, organização, atribuição, priorização, acompanhamento e conclusão de tarefas, além de recursos de colaboração, notificações e relatórios para abranger necessidades comuns em sistemas de gerenciamento de tarefas."
+      ],
+      "chain_of_thought_rel": [
+        "Esta lista contém requisitos funcionais para um sistema de gerenciamento de tarefas. Analisando cada item, identifiquei várias relações entre eles:\n\n1. Requisitos básicos de criação de tarefas (000-004) formam a base do sistema\n2. Requisitos de acompanhamento e notificação (005-006) estão relacionados ao ciclo de vida das tarefas\n3. Recursos de enriquecimento de tarefas (007-010) permitem maior detalhamento das atividades\n4. Funcionalidades de visualização e organização (011-013) ajudam os usuários a gerenciar múltiplas tarefas\n5. Recursos avançados de relatórios e integração (014-015) estendem a utilidade do sistema\n6. Funcionalidades colaborativas (016-017) permitem trabalho em equipe\n7. Requisitos técnicos de usabilidade e segurança (018-019) garantem a qualidade do sistema\n\nMuitos requisitos têm dependências funcionais - por exemplo, para ter subtarefas (009) é necessário primeiro poder criar tarefas (000). As notificações (006) dependem de ter datas de vencimento (001). A visualização em calendário (011) requer informações de data das tarefas."
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_EVAL_A_T001_713258",
+          "to": "REQ_EVAL_A_T006_713283",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T000_713119",
+          "to": "REQ_EVAL_A_T002_713268",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T004_713276",
+          "to": "REQ_EVAL_A_T012_713304",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T011_713302",
+          "to": "REQ_EVAL_A_T001_713258",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        },
+        {
+          "from": "REQ_EVAL_A_T014_713311",
+          "to": "REQ_EVAL_A_T002_713268",
+          "type": "RELATED_TO",
+          "reason": "inferido (modelo cru)"
+        }
+      ]
+    },
+    {
+      "scenario": "B",
+      "run": 1,
+      "graph_id": "eval_b_tarefas_0_1782567218",
+      "time_gen_s": 76.98,
+      "time_rel_s": 6.21,
+      "time_total_s": 85.93,
+      "nodes": 20,
+      "llm_relationships": 10,
+      "llm_rel_types": [
+        "RELATED_TO"
+      ],
+      "total_relationships": 144,
+      "rel_breakdown": {
+        "RELATED_TO": 10,
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 12,
+        "USES_TECHNIQUE": 2
+      },
+      "graph_density": 0.3789,
+      "unique_domains": 1,
+      "theme_adherence_pct": 95.0,
+      "sample_req": "O sistema deve permitir ao usuário criar uma nova tarefa, fornecendo um título, uma descrição opcional e uma data de vencimento.",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O usuário solicitou a geração de 5 requisitos de software em Português. O tópico fornecido é \"tarefas\", que é genérico. O contexto é um sistema de gerenciamento de tarefas (to-do list). Vou gerar requisitos funcionais e não-funcionais típicos para tal sistema, focando em funcionalidades essenciais como criação, organização, visualização, notificações e persistência de dados.",
+        "O usuário solicitou 5 requisitos de software em Português sobre \"tarefas\", com um projeto chamado \"tarefas\". A descrição é genérica (\"tarefas\"), então vou assumir um sistema de gerenciamento de tarefas básico. Os requisitos devem cobrir funcionalidades essenciais como criação, visualização, edição, conclusão e organização de tarefas. Vou gerar 5 requisitos funcionais, pois o domínio \"tarefas\" se encaixa bem nesse tipo.",
+        "Preciso gerar 5 requisitos de software para um sistema de gestão de tarefas (baseado no nome e descrição \"tarefas\"). Os requisitos devem ser em português e incluir um array JSON válido. Vou criar uma mistura de requisitos funcionais (relacionados às funcionalidades do sistema) e não-funcionais (relacionados à qualidade). O domínio será principalmente \"geral\", já que a descrição é ampla. Os requisitos devem cobrir aspectos básicos como criação, listagem, edição, exclusão e usabilidade.",
+        "O usuário solicitou 5 requisitos de software em português para um projeto chamado \"tarefas\" com descrição \"tarefas\". Como a descrição é vaga, assumi que se trata de um sistema de gerenciamento de tarefas básico. Gerei requisitos funcionais típicos para esse domínio, focando em operações essenciais como criar, visualizar, editar, excluir e marcar tarefas como concluídas."
+      ],
+      "chain_of_thought_rel": [
+        "Analisando os requisitos, identifico que alguns deles são redundantes ou descrevem funcionalidades muito similares. Especificamente:\n\n- REQ_eval_b_t000_729729 e REQ_eval_b_t005_729767 e REQ_eval_b_t010_729779 e REQ_eval_b_t015_729789 são todos sobre criação de tarefas com pequenas variações nos campos obrigatórios\n- REQ_eval_b_t002_729754 e REQ_eval_b_t006_729769 e REQ_eval_b_t011_729781 e REQ_eval_b_t016_729788 são sobre listagem de tarefas com funcionalidades similares\n- REQ_eval_b_t007_729771 e REQ_eval_b_t012_729783 e REQ_eval_b_t017_729790 são sobre edição de tarefas\n- REQ_eval_b_t009_729776 e REQ_eval_b_t012_729783 e REQ_eval_b_t018_729791 são sobre exclusão de tarefas\n- REQ_eval_b_t008_729774 e REQ_eval_b_t019_729793 são sobre marcação de status de conclusão\n\nEstes pares representam requisitos relacionados que descrevem funcionalidades similares ou complementares."
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_eval_b_t000_729729",
+          "to": "REQ_eval_b_t005_729767",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t000_729729",
+          "to": "REQ_eval_b_t010_729779",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t000_729729",
+          "to": "REQ_eval_b_t015_729789",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t002_729754",
+          "to": "REQ_eval_b_t006_729769",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t002_729754",
+          "to": "REQ_eval_b_t011_729781",
+          "type": "RELATED_TO"
+        }
+      ]
+    },
+    {
+      "scenario": "B",
+      "run": 2,
+      "graph_id": "eval_b_tarefas_1_1782567304",
+      "time_gen_s": 119.25,
+      "time_rel_s": 69.58,
+      "time_total_s": 190.63,
+      "nodes": 20,
+      "llm_relationships": 14,
+      "llm_rel_types": [
+        "RELATED_TO"
+      ],
+      "total_relationships": 173,
+      "rel_breakdown": {
+        "RELATED_TO": 14,
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 35,
+        "USES_TECHNIQUE": 4
+      },
+      "graph_density": 0.4553,
+      "unique_domains": 2,
+      "theme_adherence_pct": 90.0,
+      "sample_req": "O sistema deve permitir ao usuário criar uma nova tarefa, fornecendo um título e uma descrição opcional.",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O usuário solicitou 5 requisitos de software em português para um projeto com o nome \"tarefas\" e a descrição \"tarefas\". Isso sugere um sistema de gerenciamento de tarefas (to-do list ou similar). Vou gerar requisitos que abranjam funcionalidades essenciais como criação, visualização, atualização, exclusão de tarefas (CRUD), além de um requisito não funcional relacionado à usabilidade. Os requisitos devem ser claros, diretos e em português.",
+        "O projeto é genérico e trata de \"tarefas\", portanto, os requisitos devem focar em funcionalidades básicas de um sistema de gerenciamento de tarefas. Vou gerar 5 requisitos funcionais que cobrem operações essenciais como criação, listagem, atualização, conclusão e exclusão de tarefas, além de um requisito não funcional de usabilidade para garantir que o sistema seja fácil de usar.",
+        "O projeto é sobre um sistema de gerenciamento de tarefas. Preciso gerar 5 requisitos funcionais básicos que são comuns nesse tipo de sistema, cobrindo operações fundamentais como criar, visualizar, atualizar, excluir e marcar tarefas como concluídas. O domínio será \"geral\" para todos, pois são funcionalidades centrais.",
+        "O projeto é denominado \"tarefas\" e a descrição também é \"tarefas\", indicando um sistema genérico de gerenciamento de tarefas. Para gerar 5 requisitos funcionais, focarei em funcionalidades básicas e essenciais que um sistema desse tipo deve ter, como criação, listagem, atualização, conclusão e exclusão de tarefas, garantindo que sejam claros e diretos."
+      ],
+      "chain_of_thought_rel": [
+        "Analisando os requisitos, notei que muitos deles são redundantes ou repetem funcionalidades similares com pequenas variações na redação. Por exemplo, a criação de tarefas é descrita em múltiplos requisitos (REQ_eval_b_t000_742506, REQ_eval_b_t005_742534, REQ_eval_b_t010_742543, REQ_eval_b_t015_742551). Da mesma forma, a visualização de lista de tarefas aparece em REQ_eval_b_t001_742518, REQ_eval_b_t006_742535, REQ_eval_b_t011_742544 e REQ_eval_b_t016_742555. Identifiquei relacionamentos entre requisitos que descrevem a mesma funcionalidade básica, agrupando-os como RELATED_TO. Também notei que REQ_eval_b_t013_742547 e REQ_eval_b_t019_742559 ambos tratam da exclusão de tarefas, enquanto REQ_eval_b_t004_742525 e REQ_eval_b_t009_742539 abordam usabilidade/interface intuitiva."
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_eval_b_t000_742506",
+          "to": "REQ_eval_b_t005_742534",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t000_742506",
+          "to": "REQ_eval_b_t010_742543",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t000_742506",
+          "to": "REQ_eval_b_t015_742551",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t001_742518",
+          "to": "REQ_eval_b_t006_742535",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t001_742518",
+          "to": "REQ_eval_b_t011_742544",
+          "type": "RELATED_TO"
+        }
+      ]
+    },
+    {
+      "scenario": "B",
+      "run": 3,
+      "graph_id": "eval_b_tarefas_2_1782567495",
+      "time_gen_s": 142.84,
+      "time_rel_s": 63.27,
+      "time_total_s": 208.47,
+      "nodes": 20,
+      "llm_relationships": 15,
+      "llm_rel_types": [
+        "RELATED_TO"
+      ],
+      "total_relationships": 163,
+      "rel_breakdown": {
+        "RELATED_TO": 15,
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 28
+      },
+      "graph_density": 0.4289,
+      "unique_domains": 1,
+      "theme_adherence_pct": 100.0,
+      "sample_req": "O sistema deve permitir a criação de uma nova tarefa com título e descrição.",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O projeto é sobre um sistema de gerenciamento de tarefas. Preciso gerar 5 requisitos funcionais que cubram aspectos básicos e essenciais de um sistema desse tipo, como criação, listagem, atualização, conclusão e exclusão de tarefas. Todos os requisitos serão do tipo \"funcional\" e do domínio \"geral\", pois são características centrais da aplicação.",
+        "O projeto é sobre um sistema de gerenciamento de tarefas. Vou gerar 5 requisitos funcionais básicos e essenciais para um sistema desse tipo, cobrindo funcionalidades centrais como criação, listagem, atualização, conclusão e exclusão de tarefas. Todos os requisitos serão do tipo \"funcional\" e de domínio \"geral\".",
+        "O projeto \"tarefas\" é genérico e pode se referir a um sistema de gerenciamento de tarefas. Com base nisso, gerei 5 requisitos funcionais básicos que são comuns neste domínio, focando em operações essenciais como criar, visualizar, editar, excluir e marcar tarefas como concluídas.",
+        "O projeto \"tarefas\" é genérico e pode se referir a um sistema de gerenciamento de tarefas. Com base nisso, gerei 5 requisitos funcionais básicos que são comuns neste domínio, focando nas operações essenciais de CRUD (criar, ler, atualizar, deletar) e em uma funcionalidade de organização (marcar como concluída). Todos os requisitos são do tipo \"funcional\" e pertencem ao domínio \"geral\" de sistemas de tarefas."
+      ],
+      "chain_of_thought_rel": [
+        "Analisando a lista de requisitos, notei que há vários requisitos que são redundantes ou muito similares entre si, descrevendo as mesmas funcionalidades com pequenas variações de redação. Por exemplo, a criação de tarefa aparece em [REQ_eval_b_t000_764036], [REQ_eval_b_t005_764066], [REQ_eval_b_t010_764074] e [REQ_eval_b_t015_764083]. Da mesma forma, a listagem de tarefas aparece em [REQ_eval_b_t001_764057], [REQ_eval_b_t006_764068], [REQ_eval_b_t011_764075] e [REQ_eval_b_t016_764084]. Esses requisitos claramente se referem à mesma funcionalidade e, portanto, estão relacionados. Aplicando o tipo \"RELATED_TO\" para pares que representam a mesma funcionalidade, identifiquei os seguintes relacionamentos:\n\n1. Criação de tarefa: relacionamentos entre os IDs que tratam dessa funcionalidade.\n2. Listagem de tarefas: relacionamentos entre os IDs que tratam dessa funcionalidade.\n3. Edição de tarefa: relacionamentos entre os IDs que tratam dessa funcionalidade.\n4. Marcar como concluída: relacionamentos entre os IDs que tratam dessa funcionalidade.\n5. Exclusão de tarefa: relacionamentos entre os IDs que tratam dessa funcionalidade.\n\nPara evitar duplicatas excessivas, relaciono cada requisito \"base\" com seus similares subsequentes, formando pares diretos. Por exemplo, para criação, [REQ_eval_b_t000_764036] se relaciona com [REQ_eval_b_t005_764066], [REQ_eval_b_t010_764074] e [REQ_eval_b_t015_764083]. Seguirei essa lógica para cada grupo."
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_eval_b_t000_764036",
+          "to": "REQ_eval_b_t005_764066",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t000_764036",
+          "to": "REQ_eval_b_t010_764074",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t000_764036",
+          "to": "REQ_eval_b_t015_764083",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t001_764057",
+          "to": "REQ_eval_b_t006_764068",
+          "type": "RELATED_TO"
+        },
+        {
+          "from": "REQ_eval_b_t001_764057",
+          "to": "REQ_eval_b_t011_764075",
+          "type": "RELATED_TO"
+        }
+      ]
+    },
+    {
+      "scenario": "C",
+      "run": 1,
+      "graph_id": "eval_c_tarefas_0_1782567704",
+      "time_gen_s": 161.96,
+      "time_rel_s": 71.12,
+      "time_total_s": 238.68,
+      "nodes": 20,
+      "llm_relationships": 24,
+      "llm_rel_types": [
+        "EXTENDS",
+        "DEPENDS_ON",
+        "IMPLEMENTS",
+        "RELATED_TO"
+      ],
+      "total_relationships": 158,
+      "rel_breakdown": {
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 14,
+        "DEPENDS_ON": 16,
+        "RELATED_TO": 6,
+        "IMPLEMENTS": 1,
+        "EXTENDS": 1
+      },
+      "graph_density": 0.4158,
+      "unique_domains": 11,
+      "theme_adherence_pct": 100.0,
+      "sample_req": "O sistema deve permitir que os usuários criem novas tarefas com título, descrição e data de vencimento.",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O projeto \"tarefas\" é um sistema de gerenciamento de tarefas básico. Com base nos exemplos de referência, que focam em funcionalidades como criação, marcação, organização e planejamento de tarefas, gerei 5 requisitos funcionais novos e coerentes. Eles cobrem aspectos essenciais como criação, edição, exclusão, categorização e visualização de tarefas, mantendo o estilo dos exemplos (usando \"O sistema deve...\" e incluindo critérios claros).",
+        "Com base no nome do projeto \"tarefas\" e na descrição \"tarefas\", interpreto que se trata de um sistema de gerenciamento de tarefas. Os exemplos de referência mostram requisitos típicos para sistemas de gestão de tarefas, incluindo criação, organização, priorização e acompanhamento de tarefas. Vou criar 5 requisitos funcionais novos que cubram aspectos essenciais de um sistema de gerenciamento de tarefas, mantendo o estilo dos exemplos fornecidos mas com conteúdo original e coerente com o domínio.",
+        "Com base no nome do projeto \"tarefas\" e na descrição, o foco é claramente um sistema de gerenciamento de tarefas. Os exemplos de referência mostram requisitos funcionais típicos para esse tipo de sistema (criação, marcação como concluídas, organização). Vou gerar 5 requisitos funcionais novos que cubram funcionalidades essenciais para um sistema básico de tarefas, mantendo o estilo dos exemplos (começando com \"O sistema deve...\").",
+        "Com base no nome do projeto \"tarefas\" e na descrição \"tarefas\", interpreto que se trata de um sistema de gerenciamento de tarefas. Os exemplos de referência confirmam essa interpretação, mostrando requisitos típicos para sistemas de tarefas como criação, marcação como concluído, organização e priorização. Vou criar 5 requisitos funcionais novos que sejam coerentes com este domínio, mantendo o estilo dos exemplos mas com conteúdo original."
+      ],
+      "chain_of_thought_rel": [
+        "Analisando os requisitos, identifiquei que há vários requisitos redundantes que descrevem funcionalidades similares (ex: criação de tarefas aparece em REQ_eval_c_t000_787101, REQ_eval_c_t005_787191, REQ_eval_c_t010_787214 e REQ_eval_c_t015_787226). Vou considerar os relacionamentos entre as funcionalidades distintas do sistema de gerenciamento de tarefas:\n\n1. **Operações CRUD básicas**: Criação (REQ_t000), edição (REQ_t001), exclusão (REQ_t002) e marcação como concluída (REQ_t003) formam um ciclo de vida básico das tarefas.\n\n2. **Organização e categorização**: REQ_t004 e REQ_t006 (categorização por tags) e REQ_t018 (organização por projetos) estão relacionados à mesma funcionalidade de organização.\n\n3. **Sistema de notificações**: REQ_t007, REQ_t014 e REQ_t017 tratam do mesmo mecanismo de notificação baseado em datas de vencimento.\n\n4. **Prioridades**: REQ_t008 e REQ_t015 abordam a definição de prioridades para tarefas.\n\n5. **Relatórios e análise**: REQ_t009 (relatórios de produtividade) e REQ_t019 (histórico de conclusão) fornecem funcionalidades de análise.\n\n6. **Visualização**: REQ_t013 (lista com filtros) e REQ_t016 (visualização em calendário) são formas complementares de visualizar tarefas.\n\nOs relacionamentos identificados baseiam-se em dependências funcionais (ex: notificações dependem da existência de tarefas com datas), extensões (prioridades estendem a criação de tarefas) e relações de domínio (todas as funcionalidades de organização)."
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_eval_c_t001_787177",
+          "to": "REQ_eval_c_t000_787101",
+          "type": "DEPENDS_ON",
+          "reason": "Edição de tarefas depende da existência prévia de tarefas criadas"
+        },
+        {
+          "from": "REQ_eval_c_t002_787179",
+          "to": "REQ_eval_c_t000_787101",
+          "type": "DEPENDS_ON",
+          "reason": "Exclusão de tarefas depende da existência prévia de tarefas criadas"
+        },
+        {
+          "from": "REQ_eval_c_t003_787186",
+          "to": "REQ_eval_c_t000_787101",
+          "type": "DEPENDS_ON",
+          "reason": "Marcação como concluída depende da existência de tarefas criadas"
+        },
+        {
+          "from": "REQ_eval_c_t004_787189",
+          "to": "REQ_eval_c_t000_787101",
+          "type": "DEPENDS_ON",
+          "reason": "Categorização com tags depende da existência de tarefas"
+        },
+        {
+          "from": "REQ_eval_c_t006_787195",
+          "to": "REQ_eval_c_t000_787101",
+          "type": "DEPENDS_ON",
+          "reason": "Categorização por projetos depende da existência de tarefas"
+        }
+      ]
+    },
+    {
+      "scenario": "C",
+      "run": 2,
+      "graph_id": "eval_c_tarefas_1_1782567944",
+      "time_gen_s": 141.02,
+      "time_rel_s": 58.26,
+      "time_total_s": 202.7,
+      "nodes": 20,
+      "llm_relationships": 15,
+      "llm_rel_types": [
+        "EXTENDS",
+        "DEPENDS_ON",
+        "RELATED_TO"
+      ],
+      "total_relationships": 148,
+      "rel_breakdown": {
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 11,
+        "DEPENDS_ON": 7,
+        "RELATED_TO": 3,
+        "EXTENDS": 5,
+        "USES_TECHNIQUE": 2
+      },
+      "graph_density": 0.3895,
+      "unique_domains": 10,
+      "theme_adherence_pct": 100.0,
+      "sample_req": "Como usuário, quero poder criar tarefas com título, descrição e data de vencimento no aplicativo para organizar minhas atividades pessoais ou profissi",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O projeto \"tarefas\" parece ser um sistema de gerenciamento de tarefas. Com base na descrição mínima e nos exemplos fornecidos, que focam em criação, atribuição, organização e notificações de tarefas, gerarei 5 requisitos novos e coerentes. Eles cobrirão funcionalidades essenciais como criação, categorização, priorização, colaboração e relatórios, seguindo o estilo dos exemplos (estrutura \"Como usuário, quero... [Critérios: ...]\").",
+        "O projeto \"tarefas\" é genérico, mas a descrição \"tarefas\" e os exemplos fornecidos sugerem um sistema de gerenciamento de tarefas. Os exemplos incluem funcionalidades como criar tarefas, definir prazos, atribuir a equipes e receber alertas. Com base nisso, gerarei 5 requisitos novos e coerentes, focando em funcionalidades essenciais de um sistema de tarefas, misturando requisitos funcionais e não-funcionais, e usando domínios como \"organização\", \"notificações\" e \"interface\". Os requisitos serão em português, seguindo o estilo dos exemplos (com \"Critérios:\" no summary), mas com conteúdo original.",
+        "O projeto \"tarefas\" parece ser um sistema de gerenciamento de tarefas. Com base no nome e na descrição (ambos \"tarefas\"), e nos exemplos de referência fornecidos (que são todos relacionados a gerenciamento de tarefas/projetos), vou gerar 5 requisitos novos e coerentes. Os exemplos mostram um estilo de \"Como usuário, quero... [Critérios:...]\", então adotarei um formato similar, mas com elementos próprios. Vou incluir requisitos funcionais básicos (criação, edição, organização) e um não-funcional (desempenho). Os domínios serão \"gerenciamento de tarefas\", \"notificações\", \"interface\", \"colaboração\" e \"desempenho\".",
+        "O projeto é um sistema de gerenciamento de tarefas (\"tarefas\") com foco em organização e priorização de atividades. A partir da descrição simples e dos exemplos de referência, que abordam criação, atribuição, prazos e alertas, gerei 5 requisitos novos e coerentes, cobrindo funcionalidades essenciais como criação, priorização, visualização, notificações e colaboração. Segui o estilo dos exemplos (formato \"Como usuário...\") e usei os tipos \"funcional\" e \"nao-funcional\" conforme apropriado."
+      ],
+      "chain_of_thought_rel": [
+        "Analisando os requisitos de gerenciamento de tarefas, identifiquei relacionamentos baseados em:\n1. **Dependências funcionais**: Criar tarefas é pré-requisito para todas as outras funcionalidades\n2. **Fluxo de dados**: Criação → Visualização/Filtro → Conclusão → Relatórios\n3. **Domínio operacional**: Requisitos de notificações, desempenho e colaboração\n4. **Hierarquia**: Alguns requisitos são especializações de outros (ex: criação básica vs criação com prioridade)\n\nRelacionamentos chave:\n- REQU_eval_c_t005/010/015 são variações de criação de tarefas, sendo mais específicos que REQU_eval_c_t000\n- Visualização (REQU_eval_c_t006/012/016/017) depende da existência de tarefas criadas\n- Marcar conclusão (REQU_eval_c_t009/011) e relatórios (REQU_eval_c_t004) dependem do status das tarefas\n- Notificações (REQU_eval_c_t007/013/018) dependem de tarefas com datas de vencimento\n- Desempenho (REQU_eval_c_t008/014) são restrições transversais que afetam múltiplas funcionalidades"
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_eval_c_t005_808819",
+          "to": "REQ_eval_c_t000_808760",
+          "type": "EXTENDS",
+          "reason": "Adiciona prioridade à criação básica de tarefas"
+        },
+        {
+          "from": "REQ_eval_c_t010_808852",
+          "to": "REQ_eval_c_t000_808760",
+          "type": "EXTENDS",
+          "reason": "Especifica criação com prioridade além dos campos básicos"
+        },
+        {
+          "from": "REQ_eval_c_t015_808864",
+          "to": "REQ_eval_c_t000_808760",
+          "type": "RELATED_TO",
+          "reason": "Variação semântica da funcionalidade de criação"
+        },
+        {
+          "from": "REQ_eval_c_t006_808841",
+          "to": "REQ_eval_c_t000_808760",
+          "type": "DEPENDS_ON",
+          "reason": "Visualização depende de tarefas criadas"
+        },
+        {
+          "from": "REQ_eval_c_t012_808857",
+          "to": "REQ_eval_c_t011_808856",
+          "type": "DEPENDS_ON",
+          "reason": "Filtro por status depende da marcação de conclusão"
+        }
+      ]
+    },
+    {
+      "scenario": "C",
+      "run": 3,
+      "graph_id": "eval_c_tarefas_2_1782568147",
+      "time_gen_s": 123.65,
+      "time_rel_s": 76.44,
+      "time_total_s": 203.96,
+      "nodes": 20,
+      "llm_relationships": 27,
+      "llm_rel_types": [
+        "DEPENDS_ON",
+        "RELATED_TO",
+        "IMPLEMENTS"
+      ],
+      "total_relationships": 159,
+      "rel_breakdown": {
+        "IMPLEMENTS": 9,
+        "SUPPORTED_BY": 80,
+        "IS_A": 40,
+        "SIMILAR_TO": 10,
+        "DEPENDS_ON": 10,
+        "RELATED_TO": 8,
+        "USES_TECHNIQUE": 2
+      },
+      "graph_density": 0.4184,
+      "unique_domains": 15,
+      "theme_adherence_pct": 95.0,
+      "sample_req": "O sistema deve permitir que o usuário crie tarefas com título, descrição, data de vencimento e prioridade (baixa, média, alta).",
+      "reqs_generated": 20,
+      "chain_of_thought_gen": [
+        "O projeto \"tarefas\" parece ser um aplicativo ou sistema de gerenciamento de tarefas. Com base no nome e descrição (ambos \"tarefas\"), o foco principal é a gestão de atividades pessoais ou em equipe. Considerando os exemplos de referência, que incluem funcionalidades como notas adesivas, gerenciamento de tempo, temporizadores, projetos e compartilhamento, gerarei 5 requisitos novos e coerentes, variando entre funcional e não-funcional, com domínios como \"interface\", \"produtividade\", \"colaboração\", \"segurança\" e \"desempenho\".",
+        "O projeto \"tarefas\" é genérico, então vou focar em funcionalidades essenciais de um sistema de gerenciamento de tarefas. Baseado nas referências, identifiquei necessidades como: criação/edição de tarefas, categorização, notificações, colaboração e relatórios. Vou gerar 5 requisitos funcionais cobrindo essas áreas, mantendo o padrão de estrutura das referências (texto descritivo seguido de critérios resumidos).",
+        "O projeto \"tarefas\" é genérico, mas o contexto dos exemplos de referência sugere um sistema de gerenciamento de tarefas pessoais ou colaborativas. Baseado nisso, gerei 5 requisitos novos que cobrem funcionalidades essenciais como criação, categorização, notificação, colaboração e relatórios, mantendo o estilo dos exemplos fornecidos (formato \"Como usuário, quero...\" com critérios de aceitação resumidos). Todos os requisitos são funcionais, pois descrevem comportamentos diretos do sistema.",
+        "O projeto \"tarefas\" é genérico, então vou focar em funcionalidades essenciais de um sistema de gerenciamento de tarefas. Com base nos exemplos de referência (que tratam de notas, temporizadores, projetos e compartilhamento), criarei 5 requisitos novos e coerentes, abrangendo criação, organização, notificações, colaboração e relatórios. Os requisitos serão em português, com tipos funcionais e não-funcionais, e domínios como \"gestão\" ou \"usabilidade\"."
+      ],
+      "chain_of_thought_rel": [
+        "Analisando os requisitos, identifiquei diversos relacionamentos semânticos baseados em:\n\n1. **Duplicações funcionais**: Vários requisitos descrevem a mesma funcionalidade (ex: criação de tarefas aparece em REQ_eval_c_t000, REQ_eval_c_t005, REQ_eval_c_t010, REQ_eval_c_t015)\n\n2. **Dependências funcionais**: \n   - Notificações dependem da existência de tarefas com datas de vencimento\n   - Compartilhamento depende da existência de tarefas/listas\n   - Relatórios dependem do gerenciamento básico de tarefas\n\n3. **Hierarquia funcional**: \n   - Requisitos de interface/gestão implementam funcionalidades descritas em requisitos de usuário\n   - Requisitos específicos (como notificações por push) estendem conceitos gerais\n\n4. **Domínios operacionais**: \n   - Requisitos de segurança e desempenho se relacionam com todos os outros requisitos funcionais\n   - Requisitos de colaboração, organização e notificações pertencem ao mesmo ecossistema\n\n5. **Fluxos de dados**: Criação → Organização → Notificação → Compartilhamento → Relatórios"
+      ],
+      "llm_rel_sample": [
+        {
+          "from": "REQ_eval_c_t001_827397",
+          "to": "REQ_eval_c_t000_827309",
+          "type": "DEPENDS_ON",
+          "reason": "Notificações dependem da existência de tarefas com datas de vencimento"
+        },
+        {
+          "from": "REQ_eval_c_t002_827413",
+          "to": "REQ_eval_c_t000_827309",
+          "type": "DEPENDS_ON",
+          "reason": "Compartilhamento depende da existência de tarefas/listas para compartilhar"
+        },
+        {
+          "from": "REQ_eval_c_t007_827438",
+          "to": "REQ_eval_c_t005_827429",
+          "type": "DEPENDS_ON",
+          "reason": "Notificações de lembrete dependem da criação de tarefas com vencimento"
+        },
+        {
+          "from": "REQ_eval_c_t008_827455",
+          "to": "REQ_eval_c_t005_827429",
+          "type": "DEPENDS_ON",
+          "reason": "Compartilhamento de tarefas depende da existência de tarefas"
+        },
+        {
+          "from": "REQ_eval_c_t009_827464",
+          "to": "REQ_eval_c_t005_827429",
+          "type": "DEPENDS_ON",
+          "reason": "Relatórios dependem do gerenciamento básico de tarefas"
+        }
+      ]
+    }
+  ]
+}

@@ -4,30 +4,47 @@ Queries Cypher isoladas — todas as strings ficam aqui.
 
 SEARCH_REQUIREMENTS = """
 MATCH (r:Requirement)
-WHERE (any(kw IN $keywords WHERE toLower(r.text) CONTAINS kw)
-   OR any(kw IN $keywords WHERE toLower(r.summary) CONTAINS kw))
-  AND ($graph_id = '' OR r.graph_id = $graph_id)
+WHERE ($graph_id = '' OR r.graph_id = $graph_id)
+  AND (
+    any(kw IN $keywords WHERE toLower(r.text) CONTAINS kw)
+    OR any(kw IN $keywords WHERE toLower(r.summary) CONTAINS kw)
+    OR any(kw IN $keywords WHERE toLower(coalesce(r.domain,'')) CONTAINS kw)
+  )
 WITH r,
-     size([kw IN $keywords WHERE toLower(r.text) CONTAINS kw]) +
-     size([kw IN $keywords WHERE toLower(r.summary) CONTAINS kw]) AS score
+     size([kw IN $keywords WHERE toLower(r.text) CONTAINS kw]) * 3 +
+     size([kw IN $keywords WHERE toLower(r.summary) CONTAINS kw]) * 2 +
+     size([kw IN $keywords WHERE toLower(coalesce(r.domain,'')) CONTAINS kw]) AS score
 ORDER BY score DESC
 LIMIT $limit
 RETURN r.req_id AS req_id, r.text AS text, r.summary AS summary,
-       r.type AS type, r.domain AS domain, score
+       r.type AS type, r.domain AS domain, r.communityId AS communityId, score
 """
 
 GET_REQUIREMENT_CONTEXT = """
 MATCH (r:Requirement {req_id: $req_id})
 OPTIONAL MATCH (r)-[:USES_TECHNIQUE]->(t:Technique)
 OPTIONAL MATCH (r)-[:IS_A]->(c1:Concept)
-OPTIONAL MATCH (r)-[:IS_RELATED_TO]->(c2:Concept)
 OPTIONAL MATCH (r)-[:SUPPORTED_BY]->(i:Instruction)
-OPTIONAL MATCH (r)-[:ELICITED_BY]->(t2:Technique)
+// Vizinhos semânticos: todas as arestas criadas pelo LLM
+OPTIONAL MATCH (r)-[rel:RELATED_TO|DEPENDS_ON|EXTENDS|CONFLICTS_WITH|IMPLEMENTS|SIMILAR_TO]->(nb:Requirement)
+WITH r,
+     collect(DISTINCT t.name) AS techniques,
+     collect(DISTINCT c1.name) AS concepts,
+     collect(DISTINCT i.text) AS instructions,
+     collect(DISTINCT {req_id: nb.req_id, text: nb.text, rel_type: type(rel)}) AS neighbors
 RETURN r.req_id AS req_id, r.text AS text, r.summary AS summary,
-       r.type AS type, r.domain AS domain,
-       collect(DISTINCT t.name) + collect(DISTINCT t2.name) AS techniques,
-       collect(DISTINCT c1.name) + collect(DISTINCT c2.name) AS concepts,
-       collect(DISTINCT i.text) AS instructions
+       r.type AS type, r.domain AS domain, r.communityId AS communityId,
+       techniques, concepts, instructions, neighbors
+"""
+
+# Busca todos os vizinhos de 1 hop de um nó (qualquer tipo de relação semântica)
+GET_GRAPH_NEIGHBORS = """
+MATCH (r:Requirement {req_id: $req_id})
+OPTIONAL MATCH (r)-[rel:RELATED_TO|DEPENDS_ON|EXTENDS|CONFLICTS_WITH|IMPLEMENTS|SIMILAR_TO]-(nb:Requirement)
+WHERE ($graph_id = '' OR nb.graph_id = $graph_id)
+RETURN nb.req_id AS req_id, nb.text AS text, nb.summary AS summary,
+       nb.domain AS domain, type(rel) AS rel_type
+LIMIT $limit
 """
 
 GET_COMMUNITY_REQUIREMENTS = """
@@ -171,4 +188,21 @@ WITH r ORDER BY rand()
 LIMIT $limit
 RETURN r.req_id AS req_id, r.text AS text, r.summary AS summary,
        r.type AS type, r.domain AS domain
+"""
+
+# Busca semântica via índice vetorial local (embedding_local, 384 dims)
+# Requer que os nós tenham a propriedade embedding_local populada.
+SEARCH_REQUIREMENTS_SEMANTIC = """
+CALL db.index.vector.queryNodes('requirement_embeddings_local', $limit, $embedding)
+YIELD node AS r, score
+WHERE ($graph_id = '' OR r.graph_id = $graph_id)
+RETURN r.req_id AS req_id, r.text AS text, r.summary AS summary,
+       r.type AS type, r.domain AS domain, r.communityId AS communityId,
+       score
+"""
+
+# Atualiza a propriedade embedding_local de um nó
+SET_LOCAL_EMBEDDING = """
+MATCH (r:Requirement {req_id: $req_id})
+SET r.embedding_local = $embedding, r.embedding_local_model = $model
 """

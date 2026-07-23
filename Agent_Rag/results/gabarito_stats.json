@@ -1,0 +1,40 @@
+{
+  "meta": {
+    "topic": "tarefas",
+    "count": 50,
+    "runs": 1,
+    "scenarios": [
+      "Gabarito"
+    ],
+    "model": "cosine_similarity_louvain",
+    "timestamp": "2026-06-27T14:45:43.024172",
+    "note": "Gabarito gerado via CSV e Cosine Similarity"
+  },
+  "results": [
+    {
+      "scenario": "Gabarito",
+      "run": 1,
+      "graph_id": "gabarito_tarefas",
+      "time_gen_s": 0.0,
+      "time_rel_s": 18.72,
+      "time_total_s": 18.72,
+      "nodes": 50,
+      "llm_relationships": 0,
+      "llm_rel_types": [],
+      "total_relationships": 1416,
+      "rel_breakdown": {
+        "SIMILAR_TO": 816,
+        "SUPPORTED_BY": 400,
+        "IS_A": 200
+      },
+      "graph_density": 0.578,
+      "unique_domains": 1,
+      "theme_adherence_pct": 100.0,
+      "sample_req": "",
+      "reqs_generated": 50,
+      "chain_of_thought_gen": [],
+      "chain_of_thought_rel": [],
+      "llm_rel_sample": []
+    }
+  ]
+}

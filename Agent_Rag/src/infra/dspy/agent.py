@@ -140,23 +140,47 @@ def _make_tools(client: BaseGraphClient):
     """Cria closures de tool functions para o agente DSPy."""
 
     def search_requirements(query: str) -> str:
-        """Search the knowledge graph for software requirements matching keywords."""
+        """Search the knowledge graph for software requirements matching keywords. Returns top matches with community info."""
         gid = current_graph_id.get("default")
-        results = client.search_requirements(query, limit=8, graph_id=gid)
+        results = client.search_requirements(query, limit=20, graph_id=gid)
         _track([r["req_id"] for r in results])
         if not results:
             return "Nenhum requisito encontrado para essa busca."
         lines = []
         for r in results:
-            lines.append(f"[{r['req_id']}] {r['text']}")
+            comm = f" [Comunidade {r['communityId']}]" if r.get("communityId") is not None else ""
+            lines.append(f"[{r['req_id']}]{comm} {r['text']}")
+            if r.get("summary"):
+                lines.append(f"  Criterios: {r['summary'][:200]}")
+        return "\n".join(lines)
+
+    def search_requirements_semantic(query: str) -> str:
+        """SEMANTIC search using vector embeddings — finds requirements by MEANING, not just keywords.
+        Use this FIRST before search_requirements when you need to find related concepts.
+        Works even when the exact words differ (e.g. 'tarefa' matches 'atividade', 'item', 'trabalho').
+        """
+        gid = current_graph_id.get("default")
+        try:
+            results = client.search_requirements_semantic(query, limit=20, graph_id=gid)
+        except Exception:
+            results = client.search_requirements(query, limit=20, graph_id=gid)
+        _track([r["req_id"] for r in results])
+        if not results:
+            return "Nenhum requisito encontrado na busca semântica. Tente search_requirements."
+        lines = [f"[Busca semântica — {len(results)} resultados]:"]
+        for r in results:
+            score = f" (similaridade: {r.get('score', 0):.3f})" if r.get('score') else ""
+            comm = f" [Comunidade {r['communityId']}]" if r.get("communityId") is not None else ""
+            lines.append(f"[{r['req_id']}]{comm}{score} {r['text']}")
             if r.get("summary"):
                 lines.append(f"  Criterios: {r['summary'][:200]}")
         return "\n".join(lines)
 
     def get_requirement_context(req_id: str) -> str:
-        """Get full context for a specific requirement by its ID (e.g. 'REQ_0001')."""
+        """Get full context for a requirement: metadata, connected techniques/concepts, and semantic GRAPH NEIGHBORS (related, depends-on, extends, conflicts)."""
+        gid = current_graph_id.get("default")
         _track([req_id])
-        ctx = client.get_requirement_context(req_id)
+        ctx = client.get_requirement_context(req_id, graph_id=gid)
         if not ctx:
             return f"Requisito '{req_id}' nao encontrado."
         parts = [f"Requisito [{ctx['req_id']}]: {ctx['text']}"]
@@ -164,12 +188,23 @@ def _make_tools(client: BaseGraphClient):
             parts.append(f"Criterios: {ctx['summary']}")
         if ctx.get("type"):
             parts.append(f"Tipo: {ctx['type']}")
+        if ctx.get("communityId") is not None:
+            parts.append(f"Comunidade Louvain: {ctx['communityId']}")
         if ctx.get("techniques"):
             parts.append(f"Tecnicas: {', '.join(ctx['techniques'])}")
         if ctx.get("concepts"):
             parts.append(f"Conceitos: {', '.join(ctx['concepts'])}")
         if ctx.get("instructions"):
             parts.append(f"Boas praticas: {'; '.join(ctx['instructions'])}")
+        # Vizinhos semanticos — o coração do GraphRAG
+        neighbors = ctx.get("neighbors") or []
+        if neighbors:
+            parts.append(f"Vizinhos semanticos ({len(neighbors)} nos conectados):")
+            for nb in neighbors[:8]:  # mostra até 8 vizinhos
+                if nb and nb.get("req_id"):
+                    rel = nb.get("rel_type", "RELATED_TO")
+                    parts.append(f"  --[{rel}]--> [{nb['req_id']}] {nb.get('text','')[:120]}")
+            _track([nb["req_id"] for nb in neighbors if nb and nb.get("req_id")])
         return "\n".join(parts)
 
     def get_community_context(req_id: str) -> str:
@@ -326,6 +361,7 @@ def _make_tools(client: BaseGraphClient):
         CHUNK_SIZE = 5
         generator = dspy.Predict(GenerateGraphChunk)
         created_ids: list[str] = []
+        all_reqs_with_ids: list[tuple[str, dict]] = []
         remaining = node_count
         chunk_num = 0
         total_chunks = (node_count + CHUNK_SIZE - 1) // CHUNK_SIZE
@@ -378,14 +414,68 @@ def _make_tools(client: BaseGraphClient):
                     graph_id=gid,
                 )
                 created_ids.append(new_id)
+                all_reqs_with_ids.append((new_id, req))
                 _track([new_id])
 
             remaining -= batch
 
-        # 4. Conecta nós a técnicas/conceitos/instruções padrão
-        _push("Construindo relacionamentos...", 93)
-        print(f"[tool:create_graph] connecting nodes for gid={gid!r}")
+        # 4. Conecta nós a técnicas/conceitos/instruções padrão (keyword-based)
+        _push("Conectando conceitos estáticos...", 85)
+        print(f"[tool:create_graph] connecting static nodes for gid={gid!r}")
         _connect_graph_nodes(client, gid)
+
+        # 5. Infere relacionamentos SEMÂNTICOS entre os próprios requisitos usando IA
+        _push("Inferindo relacionamentos semânticos com IA...", 92)
+        try:
+            from src.infra.dspy.signatures import InferRelationshipsOptimized
+            infer = dspy.Predict(InferRelationshipsOptimized)
+            
+            # Formata lista
+            lines = []
+            for r_id, r_dict in all_reqs_with_ids:
+                txt = r_dict.get("text", "")[:120]
+                dom = r_dict.get("domain", "geral")
+                lines.append(f"  [{r_id}] ({dom}) {txt}")
+            req_list_str = "\n".join(lines)
+
+            # Executa
+            res = infer(requirements_list=req_list_str, domain=name)
+            
+            # Parse JSON
+            raw_rels = res.relationships_json.strip()
+            import re as _re
+            raw_rels = _re.sub(r"<think>.*?</think>", "", raw_rels, flags=_re.DOTALL | _re.IGNORECASE).strip()
+            if raw_rels.startswith("```"):
+                raw_rels = raw_rels.split("```")[1]
+                if raw_rels.startswith("json"):
+                    raw_rels = raw_rels[4:]
+            
+            m = _re.search(r"\[.*\]", raw_rels.strip(), _re.DOTALL)
+            if m:
+                rels = _json.loads(m.group(0))
+                if isinstance(rels, list):
+                    valid_types = {"DEPENDS_ON", "EXTENDS", "CONFLICTS_WITH", "RELATED_TO", "IMPLEMENTS"}
+                    count_rels = 0
+                    for rel in rels:
+                        from_id = str(rel.get("from", "")).strip()
+                        to_id   = str(rel.get("to", "")).strip()
+                        rel_type = str(rel.get("type", "RELATED_TO")).strip().upper()
+                        reason   = str(rel.get("reason", "")).strip()[:200]
+                        if rel_type not in valid_types:
+                            rel_type = "RELATED_TO"
+                        
+                        if from_id and to_id and from_id != to_id and from_id in created_ids and to_id in created_ids:
+                            client.run(
+                                f"MATCH (a:Requirement {{req_id:$a, graph_id:$gid}}), "
+                                f"(b:Requirement {{req_id:$b, graph_id:$gid}}) "
+                                f"MERGE (a)-[r:{rel_type}]->(b) "
+                                f"ON CREATE SET r.reason=$reason, r.source='llm_inferred'",
+                                {"a": from_id, "b": to_id, "gid": gid, "reason": reason},
+                            )
+                            count_rels += 1
+                    print(f"[tool:create_graph] ✓ inferred {count_rels} semantic relationships")
+        except Exception as e:
+            print(f"[tool:create_graph] ✗ failed to infer relationships: {e}")
 
         # 5. Notifica conclusão
         print(f"[tool:create_graph] ✓ done | created={len(created_ids)} | gid={gid!r}")
@@ -400,6 +490,7 @@ def _make_tools(client: BaseGraphClient):
         )
 
     return [
+        search_requirements_semantic,
         search_requirements,
         get_requirement_context,
         get_community_context,
@@ -419,7 +510,7 @@ class GraphRAGAgent(dspy.Module):
         self.react = dspy.ReAct(
             RequirementsQA,
             tools=self._tools_list,
-            max_iters=8,
+            max_iters=4,  # Reduzido de 8 para 4 — mais rápido na avaliação
         )
 
     def forward(self, question: str) -> dspy.Prediction:
@@ -479,13 +570,14 @@ class GraphRAGAgent(dspy.Module):
         raise RuntimeError("Maximo de tentativas atingido")
 
 
-def build_agent(client: BaseGraphClient) -> GraphRAGAgent:
+def build_agent(client: BaseGraphClient, cache: bool = True) -> GraphRAGAgent:
     """Configura DSPy, cria e retorna o agente. Carrega prompt otimizado se disponível."""
     lm = dspy.LM(
         model=config.DSPY_MODEL,
         api_key=config.OPENROUTER_API_KEY,
         temperature=config.LLM_TEMPERATURE,
         max_tokens=config.LLM_MAX_TOKENS,
+        cache=cache,
     )
     dspy.configure(lm=lm)
 

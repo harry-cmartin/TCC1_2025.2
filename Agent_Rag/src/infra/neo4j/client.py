@@ -34,13 +34,20 @@ class Neo4jClient(BaseGraphClient):
 
     # ---- Leitura ----
 
-    def search_requirements(self, query: str, limit: int = 10, graph_id: str = "") -> List[Dict]:
-        keywords = [kw.strip() for kw in query.lower().split() if len(kw.strip()) > 2]
+    def search_requirements(self, query: str, limit: int = 15, graph_id: str = "") -> List[Dict]:
+        # Remove stopwords curtas e palavras de estrutura para melhorar o recall
+        _stopwords = {"que", "dos", "das", "do", "da", "de", "em", "um", "uma",
+                      "os", "as", "ao", "se", "por", "com", "para", "no", "na",
+                      "the", "and", "for", "are", "how", "what", "which"}
+        keywords = [
+            kw.strip() for kw in query.lower().split()
+            if len(kw.strip()) > 2 and kw.strip() not in _stopwords
+        ]
         if not keywords:
-            keywords = [query.lower()]
+            keywords = [query.lower()[:60]]
         return self.run(queries.SEARCH_REQUIREMENTS, {"keywords": keywords, "limit": limit, "graph_id": graph_id})
 
-    def get_requirement_context(self, req_id: str) -> Optional[Dict]:
+    def get_requirement_context(self, req_id: str, graph_id: str = "") -> Optional[Dict]:
         rows = self.run(queries.GET_REQUIREMENT_CONTEXT, {"req_id": req_id})
         if not rows or rows[0].get("text") is None:
             return None
@@ -48,7 +55,49 @@ class Neo4jClient(BaseGraphClient):
         row["techniques"] = list({t for t in row.get("techniques", []) if t})
         row["concepts"] = list({c for c in row.get("concepts", []) if c})
         row["instructions"] = list({i for i in row.get("instructions", []) if i})
+        # Filtra vizinhos nulos (OPTIONAL MATCH pode retornar None)
+        row["neighbors"] = [
+            nb for nb in row.get("neighbors", [])
+            if nb and nb.get("req_id")
+        ]
         return row
+
+    def get_graph_neighbors(self, req_id: str, graph_id: str = "", limit: int = 10) -> List[Dict]:
+        """Retorna vizinhos semânticos de 1-hop de um nó (RELATED_TO, DEPENDS_ON, EXTENDS, etc)."""
+        return self.run(
+            queries.GET_GRAPH_NEIGHBORS,
+            {"req_id": req_id, "graph_id": graph_id, "limit": limit},
+        )
+
+    def search_requirements_semantic(
+        self, query: str, limit: int = 15, graph_id: str = ""
+    ) -> List[Dict]:
+        """
+        Busca semântica via embedding local (sentence-transformers, 384 dims).
+        Usa o índice vetorial 'requirement_embeddings_local'.
+        Cai para busca léxica se o índice não existir ou a busca retornar vazio.
+        """
+        from src.infra.embeddings import embed_text
+        q_vec = embed_text(query)
+        try:
+            rows = self.run(
+                queries.SEARCH_REQUIREMENTS_SEMANTIC,
+                {"embedding": q_vec, "limit": limit, "graph_id": graph_id},
+            )
+            if rows:
+                return rows
+        except Exception:
+            pass
+        # Fallback léxico
+        return self.search_requirements(query, limit=limit, graph_id=graph_id)
+
+    def set_local_embedding(self, req_id: str, embedding: List) -> None:
+        """Salva o embedding local (384 dims) em um nó Requirement."""
+        from src.infra.embeddings import LOCAL_EMBEDDING_MODEL
+        self.run(
+            queries.SET_LOCAL_EMBEDDING,
+            {"req_id": req_id, "embedding": embedding, "model": LOCAL_EMBEDDING_MODEL},
+        )
 
     def get_community_requirements(self, req_id: str, limit: int = 15) -> List[Dict]:
         rows = self.run(queries.GET_COMMUNITY_REQUIREMENTS, {"req_id": req_id, "limit": limit})
