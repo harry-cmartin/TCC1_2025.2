@@ -371,12 +371,14 @@ def _make_tools(client: BaseGraphClient):
                 pct,
             )
 
-            start_idx = ((chunk_num - 1) * 3) % max(1, len(examples))
-            current_refs = (examples * 2)[start_idx:start_idx + 3]
-            reference_str = "\n".join(
-                f"- {r['text']}" + (f" [Critérios: {r['summary'][:80]}]" if r.get("summary") else "")
-                for r in current_refs
-            )
+            if chunk_num == 1:
+                current_refs = examples[:3]
+                reference_str = "\n".join(
+                    f"- {r['text']}" + (f" [Critérios: {r['summary'][:80]}]" if r.get("summary") else "")
+                    for r in current_refs
+                )
+            else:
+                reference_str = "Nenhum exemplo fornecido neste lote. APENAS crie funcionalidades NOVAS que NÃO estejam na lista previous_requirements."
 
             try:
                 prev_reqs_str = "\n".join([f"- {t}" for t in generated_texts]) if generated_texts else "Nenhum requisito gerado ainda."
