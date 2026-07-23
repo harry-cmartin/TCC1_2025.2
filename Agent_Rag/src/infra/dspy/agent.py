@@ -352,11 +352,6 @@ def _make_tools(client: BaseGraphClient):
         if not examples:
             examples = client.sample_requirements_for_graph([], 15)
 
-        reference_str = "\n".join(
-            f"- {r['text']}" + (f" [Critérios: {r['summary'][:80]}]" if r.get("summary") else "")
-            for r in examples[:10]
-        )
-
         # 3. Gera requisitos em chunks via LLM (5 por chamada)
         CHUNK_SIZE = 5
         generator = dspy.Predict(GenerateGraphChunk)
@@ -374,6 +369,13 @@ def _make_tools(client: BaseGraphClient):
             _push(
                 f"Gerando requisitos com IA: chunk {chunk_num}/{total_chunks}...",
                 pct,
+            )
+
+            start_idx = ((chunk_num - 1) * 3) % max(1, len(examples))
+            current_refs = (examples * 2)[start_idx:start_idx + 3]
+            reference_str = "\n".join(
+                f"- {r['text']}" + (f" [Critérios: {r['summary'][:80]}]" if r.get("summary") else "")
+                for r in current_refs
             )
 
             try:

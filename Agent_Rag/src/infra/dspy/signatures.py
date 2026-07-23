@@ -26,8 +26,8 @@ RequirementsQA = dspy.Signature("question -> answer").with_instructions(AGENT_IN
 _GEN_INSTRUCTIONS = """\
 Você é um especialista em Engenharia de Requisitos.
 Gere exatamente `count` requisitos de software em Português para o projeto descrito.
-Use reference_examples APENAS como inspiração de estilo — crie requisitos NOVOS e coerentes com o projeto.
-IMPORTANTE: Leia `previous_requirements`. Gere APENAS requisitos TOTALMENTE distintos. NUNCA repita ou gere requisitos com a mesma ideia básica dos já gerados.
+Os `reference_examples` servem APENAS para demonstrar o formato JSON. É EXPRESSAMENTE PROIBIDO copiar ou reescrever o conteúdo dos exemplos. Crie funcionalidades e ideias 100% NOVAS e exclusivas para este projeto.
+IMPORTANTE: Leia `previous_requirements`. Gere APENAS requisitos TOTALMENTE distintos. É PROIBIDO repetir ou gerar requisitos com a mesma ideia básica dos já gerados.
 Responda SOMENTE com um array JSON válido, sem markdown, sem texto extra:
 [
   {"text": "O sistema deve ...", "summary": "Critérios: ...", "type": "funcional", "domain": "area"},
