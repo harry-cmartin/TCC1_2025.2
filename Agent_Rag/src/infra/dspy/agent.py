@@ -429,12 +429,12 @@ def _make_tools(client: BaseGraphClient):
             remaining -= batch
 
         # 4. Conecta nós a técnicas/conceitos/instruções padrão (keyword-based)
-        _push("Conectando conceitos estáticos...", 85)
+        _push("Conectando conceitos estáticos...", 92)
         print(f"[tool:create_graph] connecting static nodes for gid={gid!r}")
         _connect_graph_nodes(client, gid)
 
         # 5. Infere relacionamentos SEMÂNTICOS entre os próprios requisitos usando IA
-        _push("Inferindo relacionamentos semânticos com IA...", 92)
+        _push("Inferindo relacionamentos semânticos com IA...", 96)
         try:
             from src.infra.dspy.signatures import InferRelationshipsOptimized
             infer = dspy.Predict(InferRelationshipsOptimized)
