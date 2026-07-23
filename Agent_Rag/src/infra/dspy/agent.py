@@ -362,6 +362,7 @@ def _make_tools(client: BaseGraphClient):
         generator = dspy.Predict(GenerateGraphChunk)
         created_ids: list[str] = []
         all_reqs_with_ids: list[tuple[str, dict]] = []
+        generated_texts: list[str] = []
         remaining = node_count
         chunk_num = 0
         total_chunks = (node_count + CHUNK_SIZE - 1) // CHUNK_SIZE
@@ -376,10 +377,13 @@ def _make_tools(client: BaseGraphClient):
             )
 
             try:
+                prev_reqs_str = "\n".join([f"- {t}" for t in generated_texts]) if generated_texts else "Nenhum requisito gerado ainda."
+
                 result = generator(
                     project_name=name,
                     description=description or name,
                     reference_examples=reference_str,
+                    previous_requirements=prev_reqs_str,
                     count=str(batch),
                 )
                 raw = result.requirements_json.strip()
@@ -415,6 +419,7 @@ def _make_tools(client: BaseGraphClient):
                 )
                 created_ids.append(new_id)
                 all_reqs_with_ids.append((new_id, req))
+                generated_texts.append(req.get("text", ""))
                 _track([new_id])
 
             remaining -= batch

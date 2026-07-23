@@ -27,6 +27,7 @@ _GEN_INSTRUCTIONS = """\
 Você é um especialista em Engenharia de Requisitos.
 Gere exatamente `count` requisitos de software em Português para o projeto descrito.
 Use reference_examples APENAS como inspiração de estilo — crie requisitos NOVOS e coerentes com o projeto.
+IMPORTANTE: Leia `previous_requirements`. Gere APENAS requisitos TOTALMENTE distintos. NUNCA repita ou gere requisitos com a mesma ideia básica dos já gerados.
 Responda SOMENTE com um array JSON válido, sem markdown, sem texto extra:
 [
   {"text": "O sistema deve ...", "summary": "Critérios: ...", "type": "funcional", "domain": "area"},
@@ -36,7 +37,7 @@ Tipos válidos: "funcional" ou "nao-funcional".
 """
 
 GenerateGraphChunk = dspy.Signature(
-    "project_name, description, reference_examples, count -> requirements_json",
+    "project_name, description, reference_examples, previous_requirements, count -> requirements_json",
 ).with_instructions(_GEN_INSTRUCTIONS)
 
 
