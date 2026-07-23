@@ -352,8 +352,8 @@ def _make_tools(client: BaseGraphClient):
         if not examples:
             examples = client.sample_requirements_for_graph([], 15)
 
-        # 3. Gera requisitos em chunks via LLM (5 por chamada)
-        CHUNK_SIZE = 5
+        # 3. Gera requisitos em chunks via LLM (15 por chamada)
+        CHUNK_SIZE = 15
         generator = dspy.Predict(GenerateGraphChunk)
         created_ids: list[str] = []
         all_reqs_with_ids: list[tuple[str, dict]] = []
